@@ -99,11 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
               "value": data["email"] ?? user?.email ?? "",
               "icon": Icons.email_outlined,
             },
-            {
-              "title": "Role",
-              "value": role,
-              "icon": Icons.admin_panel_settings_outlined,
-            },
+
             {
               "title": "Gender",
               "value": data["gender"] ?? "Not specified",
@@ -142,22 +138,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SizedBox(height: 20),
 
-                  // Responsive Centered Avatar
                   Center(
-                    child: Container(
+                    child: CustomContainer(
                       height: avatarSize,
                       width: avatarSize,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
+
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 16,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+
                       child: Center(
                         child: Text(
                           (data["name"] != null &&
@@ -177,17 +172,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 8),
 
                   Center(
-                    child: Container(
+                    child: CustomContainer(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: 20,
+
                       child: Text(
-                        "Role: $role",
+                        " $role ",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,

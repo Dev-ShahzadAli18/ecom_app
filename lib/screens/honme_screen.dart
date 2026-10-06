@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
         .snapshots();
   }
 
-  Future<void> toggleFavorite(Map<String, dynamic> product) async {
+  Future toggleFavorite(Map<String, dynamic> product) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -225,7 +225,6 @@ class _HomePageState extends State<HomePage> {
 
                     SizedBox(height: 25),
 
-                    // FEATURED
                     CustomSectionTitle(
                       title: "Featured",
                       collectionName: "Featured",
@@ -251,7 +250,6 @@ class _HomePageState extends State<HomePage> {
 
                     SizedBox(height: 30),
 
-                    // RECOMMENDED
                     CustomSectionTitle(
                       title: "Recommended",
                       collectionName: "Recommended",
@@ -277,7 +275,6 @@ class _HomePageState extends State<HomePage> {
 
                     SizedBox(height: 30),
 
-                    // TOP COLLECTION
                     CustomSectionTitle(
                       title: "Top Collection",
                       collectionName: "Top Collection",

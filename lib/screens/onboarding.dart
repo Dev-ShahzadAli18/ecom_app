@@ -35,30 +35,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  // void checkUser() {
-  //   User? user = FirebaseAuth.instance.currentUser;
-
-  //   if (user != null) {
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) {
-  //           return HomePage(role: widget.role);
-  //         },
-  //       ),
-  //     );
-  //   } else {
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) {
-  //           return LoginPage();
-  //         },
-  //       ),
-  //     );
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;

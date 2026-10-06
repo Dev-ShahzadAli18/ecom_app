@@ -25,7 +25,7 @@ class FavouritePage extends StatelessWidget {
         .snapshots();
   }
 
-  Future<void> removeFavorite(String productId) async {
+  Future removeFavorite(String productId) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {

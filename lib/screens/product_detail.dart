@@ -50,7 +50,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
-  Future<void> deleteProduct() async {
+  Future deleteProduct() async {
     String productId = widget.product["id"] ?? "";
 
     if (productId.isEmpty) {

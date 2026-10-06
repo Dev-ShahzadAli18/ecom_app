@@ -74,7 +74,7 @@ class _AddProductPageState extends State<AddProductPage> {
     orderAvailable = product["orderAvailable"] ?? true;
   }
 
-  Future<void> saveProduct() async {
+  Future saveProduct() async {
     String productName = productNameController.text.trim();
 
     String priceText = priceController.text.trim();
@@ -161,7 +161,7 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  Future<void> updateProduct({
+  Future updateProduct({
     required double price,
     required String productId,
   }) async {

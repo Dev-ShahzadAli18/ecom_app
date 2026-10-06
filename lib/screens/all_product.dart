@@ -44,7 +44,7 @@ class _AllProductsPageState extends State<AllProductsPage> {
         .snapshots();
   }
 
-  Future<void> toggleFavorite(Map<String, dynamic> product) async {
+  Future toggleFavorite(Map<String, dynamic> product) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {

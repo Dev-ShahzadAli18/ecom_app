@@ -34,7 +34,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
     super.dispose();
   }
 
-  Future<void> updateData() async {
+  Future updateData() async {
     if (editcontroller.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
