@@ -38,17 +38,19 @@ class CustomContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double shadowOpacity = AppColors.isDark ? 0.0 : 0.04;
+    final compact = MediaQuery.sizeOf(context).width < 360;
+    final effectiveRadius = borderRadius;
 
     Widget container = Container(
       margin: margin,
       height: height,
       width: width,
-      padding: padding ?? const EdgeInsets.all(16),
+      padding: padding ?? EdgeInsets.all(compact ? 12 : 16),
       decoration: BoxDecoration(
         color: color ?? AppColors.white,
         borderRadius: shape == BoxShape.circle
             ? null
-            : BorderRadius.circular(borderRadius),
+            : BorderRadius.circular(effectiveRadius),
         border: border,
         shape: shape ?? BoxShape.rectangle,
         boxShadow:
@@ -65,7 +67,16 @@ class CustomContainer extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return GestureDetector(onTap: onTap, child: container);
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: shape == BoxShape.circle
+              ? null
+              : BorderRadius.circular(effectiveRadius),
+          child: container,
+        ),
+      );
     }
 
     return container;

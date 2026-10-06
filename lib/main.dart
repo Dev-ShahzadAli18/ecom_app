@@ -1,4 +1,4 @@
-import 'package:ecom_app/screens/welcome_screen.dart';
+import 'package:ecom_app/screens/auth_gate.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'GemStore',
-          home: const WelcomePage(),
+          home: const AuthGate(),
         );
       },
     );

@@ -1,12 +1,13 @@
 import 'package:ecom_app/main.dart';
 import 'package:ecom_app/screens/add_product.dart';
 import 'package:ecom_app/screens/all_product.dart';
-import 'package:ecom_app/screens/honme_screen.dart';
-import 'package:ecom_app/screens/login_screen.dart';
 import 'package:ecom_app/screens/my_cart.dart';
 import 'package:ecom_app/screens/myorder.dart';
 import 'package:ecom_app/screens/search.dart';
+import 'package:ecom_app/screens/welcome_screen.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/widgets/custom_container.dart';
+import 'package:ecom_app/widgets/listtile.dart';
 import 'package:firebase_logic/firebase_logic.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class CustomDrawer extends StatelessWidget {
 
   CustomDrawer({super.key, required this.role});
 
-  AuthService authService = AuthService();
+  final AuthService authService = AuthService();
 
   bool get isAdmin => role == "admin";
 
@@ -46,7 +47,7 @@ class CustomDrawer extends StatelessWidget {
                   height: 1,
                   indent: 22,
                   endIndent: 22,
-                  color: AppColors.grey.withOpacity(0.15),
+                  color: AppColors.grey.withValues(alpha: 0.15),
                 ),
 
                 SizedBox(height: 15),
@@ -196,7 +197,7 @@ class CustomDrawer extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.isDark ? Color(0xff252525) : Color(0xffF8F8F8),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.grey.withOpacity(0.08)),
+          border: Border.all(color: AppColors.grey.withValues(alpha: 0.08)),
         ),
         child: Row(
           children: [
@@ -208,7 +209,7 @@ class CustomDrawer extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.25),
+                    color: AppColors.primary.withValues(alpha: 0.25),
                     blurRadius: 14,
                     offset: Offset(0, 5),
                   ),
@@ -294,96 +295,90 @@ class CustomDrawer extends StatelessWidget {
     required VoidCallback onTap,
     bool selected = false,
   }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      child: ListTile(
-        onTap: onTap,
-        dense: true,
-        minVerticalPadding: 4,
-        contentPadding: EdgeInsets.symmetric(horizontal: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        tileColor: selected
-            ? AppColors.isDark
-                  ? Color(0xff2C2C2C)
-                  : Color(0xffF3F4F6)
-            : Colors.transparent,
-        leading: Container(
-          height: 38,
-          width: 38,
-          decoration: BoxDecoration(
-            color: selected
-                ? AppColors.primary.withOpacity(0.14)
-                : AppColors.isDark
-                ? Color(0xff2A2A2A)
-                : Color(0xffF7F7F7),
-            borderRadius: BorderRadius.circular(11),
-          ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: selected ? AppColors.primary : AppColors.grey,
-          ),
+    return CustomListTile(
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      onTap: onTap,
+      dense: true,
+      minVerticalPadding: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      tileColor: selected
+          ? AppColors.isDark
+                ? Color(0xff2C2C2C)
+                : Color(0xffF3F4F6)
+          : Colors.transparent,
+      leading: CustomContainer(
+        height: 38,
+        width: 38,
+        padding: EdgeInsets.zero,
+        borderRadius: 11,
+        color: selected
+            ? AppColors.primary.withValues(alpha: 0.14)
+            : AppColors.isDark
+            ? Color(0xff2A2A2A)
+            : Color(0xffF7F7F7),
+        child: Icon(
+          icon,
+          size: 20,
+          color: selected ? AppColors.primary : AppColors.grey,
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? AppColors.black : AppColors.grey,
-          ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? AppColors.black : AppColors.grey,
         ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 12,
-          color: AppColors.grey,
-        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 12,
+        color: AppColors.grey,
       ),
     );
   }
 
   Widget _logout(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      child: ListTile(
-        onTap: () async {
-          await authService.logout();
+    return CustomListTile(
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      onTap: () async {
+        await authService.logout();
 
-          UserData.name = "";
-          UserData.email = "";
+        UserData.name = "";
+        UserData.email = "";
+        UserData.role = "user";
 
-          if (!context.mounted) {
-            return;
-          }
+        if (!context.mounted) {
+          return;
+        }
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return LoginPage();
-              },
-            ),
-            (route) => false,
-          );
-        },
-        dense: true,
-        minVerticalPadding: 4,
-        contentPadding: EdgeInsets.symmetric(horizontal: 14),
-        leading: Container(
-          height: 38,
-          width: 38,
-          decoration: BoxDecoration(
-            color: AppColors.red.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(11),
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return const WelcomePage();
+            },
           ),
-          child: Icon(Icons.logout_rounded, size: 20, color: AppColors.red),
-        ),
-        title: Text(
-          "Logout",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.red,
-          ),
+          (route) => false,
+        );
+      },
+      dense: true,
+      minVerticalPadding: 4,
+      contentPadding: EdgeInsets.symmetric(horizontal: 14),
+      leading: CustomContainer(
+        height: 38,
+        width: 38,
+        padding: EdgeInsets.zero,
+        color: AppColors.red.withValues(alpha: 0.10),
+        borderRadius: 11,
+        child: Icon(Icons.logout_rounded, size: 20, color: AppColors.red),
+      ),
+      title: Text(
+        "Logout",
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.red,
         ),
       ),
     );
@@ -401,7 +396,7 @@ class CustomDrawer extends StatelessWidget {
       decoration: BoxDecoration(
         color: pillBg,
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.grey.withOpacity(0.08)),
+        border: Border.all(color: AppColors.grey.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [

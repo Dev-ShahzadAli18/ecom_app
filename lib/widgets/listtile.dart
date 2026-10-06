@@ -60,13 +60,14 @@ class CustomListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 360;
     Widget tile = ListTile(
       leading: leading,
       title: title,
       subtitle: subtitle,
       trailing: trailing,
 
-      dense: dense,
+      dense: dense ?? compact,
       enabled: enabled ?? true,
       selected: selected ?? false,
       autofocus: autofocus ?? false,
@@ -77,7 +78,8 @@ class CustomListTile extends StatelessWidget {
       iconColor: iconColor,
       textColor: textColor,
 
-      contentPadding: contentPadding,
+      contentPadding:
+          contentPadding ?? EdgeInsets.symmetric(horizontal: compact ? 10 : 16),
 
       shape: shape,
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/login_screen.dart';
 import 'package:ecom_app/screens/profile_details.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
 import 'package:ecom_app/widgets/listtile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,27 +43,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
+              CustomButton(
+                text: "Go to Login",
+                width: 180,
+                height: 48,
+                textColor: Colors.white,
+                onTap: () {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => LoginPage()),
                     (route) => false,
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  "Go to Login",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
             ],
           ),

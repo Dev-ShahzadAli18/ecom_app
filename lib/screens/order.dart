@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_orderwodget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,11 @@ class OrderNowPage extends StatefulWidget {
   final Map<String, dynamic> product;
   final int initialQuantity;
 
-  const OrderNowPage({super.key, required this.product, this.initialQuantity = 1});
+  const OrderNowPage({
+    super.key,
+    required this.product,
+    this.initialQuantity = 1,
+  });
 
   @override
   State<OrderNowPage> createState() => _OrderNowPageState();
@@ -181,7 +186,10 @@ class _OrderNowPageState extends State<OrderNowPage> {
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(
-          horizontal: (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 24.0),
+          horizontal: (MediaQuery.of(context).size.width * 0.045).clamp(
+            14.0,
+            24.0,
+          ),
           vertical: 16,
         ),
         child: Column(
@@ -289,29 +297,14 @@ class _OrderNowPageState extends State<OrderNowPage> {
 
             SizedBox(height: 18),
 
-            SizedBox(
-              width: double.infinity,
+            CustomButton(
+              text: "Place Order",
+              onTap: placeOrder,
+              loading: isOrdering,
               height: 54,
-              child: ElevatedButton(
-                onPressed: isOrdering ? null : placeOrder,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: isOrdering
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        "Place Order",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-              ),
+              borderRadius: 15,
+              disabledBackgroundColor: AppColors.grey,
+              textColor: Colors.white,
             ),
 
             SizedBox(height: 20),
