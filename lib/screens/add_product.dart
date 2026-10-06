@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
+import 'package:ecom_app/widgets/listtile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -319,36 +321,26 @@ class _AddProductPageState extends State<AddProductPage> {
               children: categories.map((category) {
                 bool isSelected = selectedCategory == category;
 
-                return GestureDetector(
+                return CustomContainer(
                   onTap: () {
                     setState(() {
                       selectedCategory = category;
                     });
                   },
 
-                  child: CustomContainer(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-
-                    color: isSelected ? AppColors.primary : AppColors.white,
-
-                    borderRadius: 25,
-
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.lightGrey,
-                    ),
-
-                    child: Text(
-                      category,
-
-                      style: AppTextStyles.body.copyWith(
-                        color: isSelected ? Colors.white : AppColors.black,
-
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                      ),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  color: isSelected ? AppColors.primary : AppColors.white,
+                  borderRadius: 25,
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : AppColors.lightGrey,
+                  ),
+                  child: Text(
+                    category,
+                    style: AppTextStyles.body.copyWith(
+                      color: isSelected ? Colors.white : AppColors.black,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 );
@@ -371,36 +363,26 @@ class _AddProductPageState extends State<AddProductPage> {
               children: collections.map((collection) {
                 bool isSelected = selectedCollection == collection;
 
-                return GestureDetector(
+                return CustomContainer(
                   onTap: () {
                     setState(() {
                       selectedCollection = collection;
                     });
                   },
 
-                  child: CustomContainer(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-
-                    color: isSelected ? AppColors.primary : AppColors.white,
-
-                    borderRadius: 25,
-
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.lightGrey,
-                    ),
-
-                    child: Text(
-                      collection,
-
-                      style: AppTextStyles.body.copyWith(
-                        color: isSelected ? Colors.white : AppColors.black,
-
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                      ),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  color: isSelected ? AppColors.primary : AppColors.white,
+                  borderRadius: 25,
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : AppColors.lightGrey,
+                  ),
+                  child: Text(
+                    collection,
+                    style: AppTextStyles.body.copyWith(
+                      color: isSelected ? Colors.white : AppColors.black,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 );
@@ -416,85 +398,53 @@ class _AddProductPageState extends State<AddProductPage> {
 
             SizedBox(height: 12),
 
-            Container(
+            CustomContainer(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-
-              child: SwitchListTile(
+              color: AppColors.white,
+              borderRadius: 12,
+              child: CustomListTile(
                 contentPadding: EdgeInsets.zero,
-
+                onTap: () {
+                  setState(() {
+                    orderAvailable = !orderAvailable;
+                  });
+                },
                 title: Text(
                   orderAvailable
                       ? "Orders are available"
                       : "Orders are unavailable",
-
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.black,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 subtitle: Text(
                   orderAvailable
                       ? "Customers can order this product"
                       : "Customers cannot order this product",
-
                   style: AppTextStyles.body,
                 ),
-
-                value: orderAvailable,
-
-                activeThumbColor: AppColors.primary,
-
-                onChanged: (value) {
-                  setState(() {
-                    orderAvailable = value;
-                  });
-                },
+                trailing: Switch(
+                  value: orderAvailable,
+                  activeThumbColor: AppColors.primary,
+                  onChanged: (value) {
+                    setState(() {
+                      orderAvailable = value;
+                    });
+                  },
+                ),
               ),
             ),
 
             SizedBox(height: 25),
 
-            SizedBox(
-              width: double.infinity,
+            CustomButton(
+              text: isEditMode ? "Update Product" : "Add Product",
+              onTap: saveProduct,
+              loading: isSaving,
               height: 55,
-
-              child: ElevatedButton(
-                onPressed: isSaving ? null : saveProduct,
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-
-                  disabledBackgroundColor: AppColors.lightGrey,
-
-                  elevation: 0,
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-
-                child: isSaving
-                    ? SizedBox(
-                        height: 24,
-                        width: 24,
-
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        isEditMode ? "Update Product" : "Add Product",
-
-                        style: AppTextStyles.button,
-                      ),
-              ),
+              borderRadius: 12,
+              textColor: Colors.white,
             ),
 
             SizedBox(height: 30),

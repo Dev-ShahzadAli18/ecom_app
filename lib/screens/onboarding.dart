@@ -1,5 +1,6 @@
 import 'package:ecom_app/models/onboarding_data.dart';
-import 'package:ecom_app/screens/auth_gate.dart';
+import 'package:ecom_app/screens/login_screen.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -29,7 +30,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AuthGate()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     }
   }
@@ -213,28 +214,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
 
                   SizedBox(height: 25),
-                  SizedBox(
+                  CustomButton(
+                    text: "Shopping now",
+                    onTap: nextPage,
                     width: 180,
                     height: 45,
-                    child: ElevatedButton(
-                      onPressed: nextPage,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffF5B700),
-                        foregroundColor: Colors.black,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          side: BorderSide(color: Colors.white, width: 1),
-                        ),
-                      ),
-                      child: Text(
-                        "Shopping now",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    borderRadius: 30,
+                    textColor: Colors.black,
+                    fontSize: 13,
+                    side: const BorderSide(color: Colors.white),
                   ),
                 ],
               ),

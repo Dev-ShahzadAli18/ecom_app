@@ -1,13 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecom_app/screens/login_screen.dart';
 import 'package:ecom_app/screens/navigation.dart';
+import 'package:ecom_app/screens/welcome_screen.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/widgets/custom_drwaer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  String? _startupUserId;
+  Future<Map<String, dynamic>>? _startupFuture;
 
   Future<Map<String, dynamic>> _fetchUserData(User user) async {
     try {
@@ -46,25 +54,32 @@ class AuthGate extends StatelessWidget {
     return {"role": fallbackRole, "name": fallbackName, "email": fallbackEmail};
   }
 
+  Future<Map<String, dynamic>> _prepareAuthenticatedHome(User user) async {
+    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    return _fetchUserData(user);
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, authSnapshot) {
-        // While waiting for initial Firebase Auth state
         if (authSnapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingScreen(context);
+          return _buildSplashScreen(context);
         }
 
-        // If user is already logged in
         if (authSnapshot.hasData && authSnapshot.data != null) {
           final user = authSnapshot.data!;
+          if (_startupUserId != user.uid) {
+            _startupUserId = user.uid;
+            _startupFuture = _prepareAuthenticatedHome(user);
+          }
 
           return FutureBuilder<Map<String, dynamic>>(
-            future: _fetchUserData(user),
+            future: _startupFuture,
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return _buildLoadingScreen(context);
+                return _buildSplashScreen(context);
               }
 
               final String role = userSnapshot.data?["role"] ?? "user";
@@ -73,63 +88,72 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        // If user is not logged in -> navigate to LoginPage
-        return LoginPage();
+        _startupUserId = null;
+        _startupFuture = null;
+        return const WelcomePage();
       },
     );
   }
 
-  Widget _buildLoadingScreen(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double logoSize = (screenWidth * 0.18).clamp(60.0, 90.0);
-
+  Widget _buildSplashScreen(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: const Color(0xff11110F),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              height: logoSize,
-              width: logoSize,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.8, end: 1),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutBack,
+              builder: (context, scale, child) => Transform.scale(
+                scale: scale,
+                child: Container(
+                  height: 86,
+                  width: 86,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(26),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.22),
+                        blurRadius: 30,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: const Icon(
-                Icons.shopping_bag_outlined,
-                size: 38,
-                color: Colors.black,
+                  child: const Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 44,
+                    color: Color(0xff11110F),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              "GemStore",
+            const SizedBox(height: 30),
+            const Text(
+              "GEMSTORE",
               style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                color: AppColors.black,
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 2,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               "Discover your style",
-              style: TextStyle(fontSize: 13, color: AppColors.grey),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.68),
+                fontSize: 14,
+              ),
             ),
-            const SizedBox(height: 36),
+            const SizedBox(height: 42),
             SizedBox(
-              height: 28,
-              width: 28,
+              height: 24,
+              width: 24,
               child: CircularProgressIndicator(
-                strokeWidth: 2.8,
+                strokeWidth: 2,
                 color: AppColors.primary,
               ),
             ),

@@ -96,13 +96,14 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) {
             return MainNavigation(role: finalRole);
           },
         ),
+        (route) => false,
       );
     } else {
       setState(() {

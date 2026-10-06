@@ -83,13 +83,14 @@ class _SignupPageState extends State<SignupPage> {
         isLoading = false;
       });
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) {
             return MainNavigation(role: "user");
           },
         ),
+        (route) => false,
       );
     } catch (e) {
       if (!mounted) {

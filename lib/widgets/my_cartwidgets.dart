@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 
 class CustomCartItem extends StatelessWidget {
   final String name;
@@ -127,7 +128,11 @@ class CustomCartItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                           color: AppColors.primary,
                         ),
-                        child: const Icon(Icons.add, size: 16, color: Colors.white),
+                        child: const Icon(
+                          Icons.add,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -210,26 +215,12 @@ class CustomCartBottom extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          SizedBox(
-            width: double.infinity,
+          CustomButton(
+            text: "Order Now",
+            onTap: onOrder,
             height: 50,
-            child: ElevatedButton(
-              onPressed: onOrder,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              child: const Text(
-                "Order Now",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            borderRadius: 15,
+            textColor: Colors.white,
           ),
         ],
       ),
