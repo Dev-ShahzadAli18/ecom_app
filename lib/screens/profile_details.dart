@@ -11,7 +11,7 @@ class ProfileDetail extends StatefulWidget {
   final String title;
   final String oldvalue;
 
-  const ProfileDetail({super.key, required this.title, required this.oldvalue});
+  ProfileDetail({super.key, required this.title, required this.oldvalue});
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
@@ -36,11 +36,9 @@ class _ProfileDetailState extends State<ProfileDetail> {
 
   Future<void> updateData() async {
     if (editcontroller.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Value cannot be empty"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Value cannot be empty")));
       return;
     }
 
@@ -64,10 +62,9 @@ class _ProfileDetailState extends State<ProfileDetail> {
         fieldKey = "gender";
       }
 
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.uid)
-          .set({fieldKey: editcontroller.text.trim()}, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+        fieldKey: editcontroller.text.trim(),
+      }, SetOptions(merge: true));
 
       if (!mounted) return;
 
@@ -75,11 +72,9 @@ class _ProfileDetailState extends State<ProfileDetail> {
         isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Profile updated successfully"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Profile updated successfully")));
 
       Navigator.pop(context);
     } catch (e) {
@@ -89,11 +84,9 @@ class _ProfileDetailState extends State<ProfileDetail> {
         isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Update failed: $e"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Update failed: $e")));
     }
   }
 
@@ -112,46 +105,49 @@ class _ProfileDetailState extends State<ProfileDetail> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.black),
         ),
         title: Text(
           "Edit ${widget.title}",
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         actions: [
           CustomIconButton(
             onTap: isLoading ? null : updateData,
             icon: Icons.check,
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
         ],
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
+        physics: BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: 20,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: EdgeInsets.symmetric(horizontal: 5),
               child: Text(
                 widget.title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.black,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             CustomContainer(
               width: double.infinity,
-              padding: const EdgeInsets.all(4),
+              padding: EdgeInsets.all(4),
               color: Colors.white,
               borderRadius: 15,
               child: CustomTextField(controller: editcontroller),
             ),
-            const SizedBox(height: 25),
+            SizedBox(height: 25),
             CustomButton(
               text: isLoading ? "Updating..." : "Update ${widget.title}",
               loading: isLoading,

@@ -9,7 +9,7 @@ class CustomProductSection extends StatelessWidget {
   final Set<String> favoriteIds;
   final Future<void> Function(Map<String, dynamic>) onFavorite;
 
-  const CustomProductSection({
+  CustomProductSection({
     super.key,
     required this.products,
     required this.favoriteIds,
@@ -36,12 +36,13 @@ class CustomProductSection extends StatelessWidget {
       );
     }
 
-    final double sectionHeight = (MediaQuery.of(context).size.height * 0.36).clamp(260.0, 300.0);
+    final double sectionHeight = (MediaQuery.of(context).size.height * 0.36)
+        .clamp(260.0, 300.0);
 
     return SizedBox(
       height: sectionHeight,
       child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: products.length,
         itemBuilder: (context, index) {

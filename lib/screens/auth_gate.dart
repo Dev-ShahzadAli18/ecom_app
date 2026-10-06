@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
+   AuthGate({super.key});
 
   @override
   State<AuthGate> createState() => _AuthGateState();
@@ -45,7 +45,7 @@ class _AuthGateState extends State<AuthGate> {
     }
     final String fallbackName = user.displayName ?? "User";
     final String fallbackEmail = user.email ?? "";
-    const String fallbackRole = "user";
+     String fallbackRole = "user";
 
     UserData.name = fallbackName;
     UserData.email = fallbackEmail;
@@ -55,7 +55,7 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<Map<String, dynamic>> _prepareAuthenticatedHome(User user) async {
-    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    await Future<void>.delayed( Duration(milliseconds: 1100));
     return _fetchUserData(user);
   }
 
@@ -90,21 +90,21 @@ class _AuthGateState extends State<AuthGate> {
 
         _startupUserId = null;
         _startupFuture = null;
-        return const WelcomePage();
+        return  WelcomePage();
       },
     );
   }
 
   Widget _buildSplashScreen(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff11110F),
+      backgroundColor:  Color(0xff11110F),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.8, end: 1),
-              duration: const Duration(milliseconds: 700),
+              duration:  Duration(milliseconds: 700),
               curve: Curves.easeOutBack,
               builder: (context, scale, child) => Transform.scale(
                 scale: scale,
@@ -118,11 +118,11 @@ class _AuthGateState extends State<AuthGate> {
                       BoxShadow(
                         color: AppColors.primary.withValues(alpha: 0.22),
                         blurRadius: 30,
-                        offset: const Offset(0, 12),
+                        offset:  Offset(0, 12),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child:  Icon(
                     Icons.shopping_bag_outlined,
                     size: 44,
                     color: Color(0xff11110F),
@@ -130,8 +130,8 @@ class _AuthGateState extends State<AuthGate> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            const Text(
+             SizedBox(height: 30),
+             Text(
               "GEMSTORE",
               style: TextStyle(
                 color: Colors.white,
@@ -140,7 +140,7 @@ class _AuthGateState extends State<AuthGate> {
                 letterSpacing: 2,
               ),
             ),
-            const SizedBox(height: 10),
+             SizedBox(height: 10),
             Text(
               "Discover your style",
               style: TextStyle(
@@ -148,7 +148,7 @@ class _AuthGateState extends State<AuthGate> {
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: 42),
+             SizedBox(height: 42),
             SizedBox(
               height: 24,
               width: 24,

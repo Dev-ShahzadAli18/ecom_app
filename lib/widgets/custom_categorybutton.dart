@@ -8,7 +8,7 @@ class CategoryButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const CategoryButton({
+  CategoryButton({
     super.key,
     required this.title,
     required this.icon,

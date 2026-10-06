@@ -12,7 +12,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 class AddProductPage extends StatefulWidget {
   final Map<String, dynamic>? product;
 
-  const AddProductPage({super.key, this.product});
+  AddProductPage({super.key, this.product});
 
   @override
   State<AddProductPage> createState() => _AddProductPageState();

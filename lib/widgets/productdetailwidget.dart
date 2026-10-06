@@ -6,15 +6,12 @@ class CustomProductDetailImage extends StatelessWidget {
   final String imageUrl;
   final double? height;
 
-  const CustomProductDetailImage({
-    super.key,
-    required this.imageUrl,
-    this.height,
-  });
+  CustomProductDetailImage({super.key, required this.imageUrl, this.height});
 
   @override
   Widget build(BuildContext context) {
-    final double responsiveHeight = height ??
+    final double responsiveHeight =
+        height ??
         (MediaQuery.of(context).size.height * 0.38).clamp(240.0, 380.0);
 
     return ClipRRect(
@@ -27,17 +24,17 @@ class CustomProductDetailImage extends StatelessWidget {
                 imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const CustomProductImageError();
+                  return CustomProductImageError();
                 },
               )
-            : const CustomProductImageError(),
+            : CustomProductImageError(),
       ),
     );
   }
 }
 
 class CustomProductImageError extends StatelessWidget {
-  const CustomProductImageError({super.key});
+  CustomProductImageError({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +53,7 @@ class CustomProductDetailHeader extends StatelessWidget {
   final String name;
   final double price;
 
-  const CustomProductDetailHeader({
+  CustomProductDetailHeader({
     super.key,
     required this.name,
     required this.price,
@@ -69,12 +66,9 @@ class CustomProductDetailHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            name,
-            style: AppTextStyles.title.copyWith(fontSize: 22),
-          ),
+          child: Text(name, style: AppTextStyles.title.copyWith(fontSize: 22)),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           "\$${price.toStringAsFixed(2)}",
           style: AppTextStyles.title.copyWith(
@@ -91,7 +85,7 @@ class CustomProductInfo extends StatelessWidget {
   final String category;
   final String collection;
 
-  const CustomProductInfo({
+  CustomProductInfo({
     super.key,
     required this.category,
     required this.collection,
@@ -113,12 +107,12 @@ class CustomProductInfo extends StatelessWidget {
 class CustomProductInfoChip extends StatelessWidget {
   final String text;
 
-  const CustomProductInfoChip({super.key, required this.text});
+  CustomProductInfoChip({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.lightGrey,
         borderRadius: BorderRadius.circular(20),
@@ -131,7 +125,7 @@ class CustomProductInfoChip extends StatelessWidget {
 class CustomProductDescription extends StatelessWidget {
   final String description;
 
-  const CustomProductDescription({super.key, required this.description});
+  CustomProductDescription({super.key, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +133,7 @@ class CustomProductDescription extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Description", style: AppTextStyles.title.copyWith(fontSize: 17)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           description.isEmpty ? "No description available" : description,
           style: AppTextStyles.body.copyWith(fontSize: 13.5, height: 1.45),
@@ -152,19 +146,17 @@ class CustomProductDescription extends StatelessWidget {
 class CustomOrderAvailability extends StatelessWidget {
   final bool orderAvailable;
 
-  const CustomOrderAvailability({super.key, required this.orderAvailable});
+  CustomOrderAvailability({super.key, required this.orderAvailable});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.grey.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: AppColors.grey.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -172,9 +164,11 @@ class CustomOrderAvailability extends StatelessWidget {
             orderAvailable ? Icons.check_circle_outline : Icons.cancel_outlined,
             color: orderAvailable ? Colors.green : Colors.red,
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Text(
-            orderAvailable ? "In Stock (Orders Available)" : "Out of Stock (Orders Unavailable)",
+            orderAvailable
+                ? "In Stock (Orders Available)"
+                : "Out of Stock (Orders Unavailable)",
             style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.black,
@@ -191,7 +185,7 @@ class CustomAdminButtons extends StatelessWidget {
   final VoidCallback onDelete;
   final bool isDeleting;
 
-  const CustomAdminButtons({
+  CustomAdminButtons({
     super.key,
     required this.onUpdate,
     required this.onDelete,
@@ -205,28 +199,28 @@ class CustomAdminButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onUpdate,
-            icon: const Icon(Icons.edit_outlined),
-            label: const Text("Edit / Update"),
+            icon: Icon(Icons.edit_outlined),
+            label: Text("Edit / Update"),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: BorderSide(color: AppColors.primary),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: ElevatedButton.icon(
             onPressed: isDeleting ? null : onDelete,
-            icon: const Icon(Icons.delete_outline),
+            icon: Icon(Icons.delete_outline),
             label: Text(isDeleting ? "Deleting..." : "Delete"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -245,7 +239,7 @@ class CustomUserButtons extends StatelessWidget {
   final bool isOrdering;
   final bool orderAvailable;
 
-  const CustomUserButtons({
+  CustomUserButtons({
     super.key,
     required this.onAddToCart,
     required this.onOrderNow,
@@ -262,30 +256,30 @@ class CustomUserButtons extends StatelessWidget {
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: isAddingToCart ? null : onAddToCart,
-            icon: const Icon(Icons.shopping_cart_outlined),
+            icon: Icon(Icons.shopping_cart_outlined),
             label: Text(isAddingToCart ? "Adding to Cart..." : "Add to Cart"),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: BorderSide(color: AppColors.primary),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: orderAvailable && !isOrdering ? onOrderNow : null,
-            icon: const Icon(Icons.shopping_bag_outlined),
+            icon: Icon(Icons.shopping_bag_outlined),
             label: Text(isOrdering ? "Processing..." : "Order Now"),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.black,
               disabledBackgroundColor: AppColors.lightGrey,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

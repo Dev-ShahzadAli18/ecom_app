@@ -9,7 +9,7 @@ class CustomSectionTitle extends StatelessWidget {
   final String category;
   final String role;
 
-  const CustomSectionTitle({
+  CustomSectionTitle({
     super.key,
     required this.title,
     required this.collectionName,

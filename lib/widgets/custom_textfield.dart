@@ -47,7 +47,7 @@ class CustomTextField extends StatelessWidget {
 
   final bool showCounterText;
 
-  const CustomTextField({
+  CustomTextField({
     super.key,
 
     this.controller,

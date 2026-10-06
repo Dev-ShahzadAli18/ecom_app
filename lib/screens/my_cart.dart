@@ -6,7 +6,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 
 class MyCartPage extends StatefulWidget {
-  const MyCartPage({super.key});
+  MyCartPage({super.key});
 
   @override
   State<MyCartPage> createState() => _MyCartPageState();
@@ -28,7 +28,7 @@ class _MyCartPageState extends State<MyCartPage> {
   Stream<QuerySnapshot> getCart() {
     final collection = cartCollection;
     if (collection == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return collection.snapshots();

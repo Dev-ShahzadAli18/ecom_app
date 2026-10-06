@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 
 class VerificationCode extends StatefulWidget {
-  const VerificationCode({super.key});
+  VerificationCode({super.key});
 
   @override
   State<VerificationCode> createState() => _VerificationCodeState();
@@ -26,9 +26,9 @@ class _VerificationCodeState extends State<VerificationCode> {
     final double screenWidth = mediaQuery.size.width;
     final double horizontalPadding = (screenWidth * 0.055).clamp(16.0, 24.0);
 
-    Color lineColor = AppColors.isDark ? const Color(0xff3A3A3A) : const Color(0xffE5E5E5);
-    Color arrowColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff555555);
-    Color descColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff5A5959);
+    Color lineColor = AppColors.isDark ? Color(0xff3A3A3A) : Color(0xffE5E5E5);
+    Color arrowColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff555555);
+    Color descColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff5A5959);
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -36,7 +36,7 @@ class _VerificationCodeState extends State<VerificationCode> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -44,7 +44,7 @@ class _VerificationCodeState extends State<VerificationCode> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 15),
+                      SizedBox(height: 15),
 
                       GestureDetector(
                         onTap: () {
@@ -65,7 +65,7 @@ class _VerificationCodeState extends State<VerificationCode> {
                         ),
                       ),
 
-                      const SizedBox(height: 35),
+                      SizedBox(height: 35),
 
                       Text(
                         "Verification code",
@@ -76,15 +76,19 @@ class _VerificationCodeState extends State<VerificationCode> {
                         ),
                       ),
 
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
 
                       Text(
                         "Please enter the verification code we sent\n"
                         "to your email address.",
-                        style: TextStyle(fontSize: 12, height: 1.5, color: descColor),
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.5,
+                          color: descColor,
+                        ),
                       ),
 
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
 
                       Center(
                         child: CustomOtpField(
@@ -94,7 +98,7 @@ class _VerificationCodeState extends State<VerificationCode> {
                         ),
                       ),
 
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
 
                       Center(
                         child: Text(
@@ -103,7 +107,7 @@ class _VerificationCodeState extends State<VerificationCode> {
                         ),
                       ),
 
-                      const Spacer(),
+                      Spacer(),
 
                       SizedBox(
                         width: double.infinity,
@@ -113,13 +117,15 @@ class _VerificationCodeState extends State<VerificationCode> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const ResetPassword()),
+                              MaterialPageRoute(
+                                builder: (context) => ResetPassword(),
+                              ),
                             );
                           },
                         ),
                       ),
 
-                      const SizedBox(height: 25),
+                      SizedBox(height: 25),
                     ],
                   ),
                 ),

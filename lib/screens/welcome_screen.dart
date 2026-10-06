@@ -4,7 +4,7 @@ import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
+  WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class WelcomePage extends StatelessWidget {
                   return child;
                 }
 
-                return const Center(
+                return Center(
                   child: CircularProgressIndicator(color: Color(0xffF5B700)),
                 );
               },
@@ -33,7 +33,7 @@ class WelcomePage extends StatelessWidget {
                   width: double.infinity,
                   height: double.infinity,
                   color: Colors.grey.shade300,
-                  child: const Icon(
+                  child: Icon(
                     Icons.image_outlined,
                     size: 60,
                     color: Colors.grey,
@@ -54,7 +54,7 @@ class WelcomePage extends StatelessWidget {
                     Colors.black.withValues(alpha: 0.15),
                     Colors.black.withValues(alpha: 0.85),
                   ],
-                  stops: const [0.35, 0.58, 1.0],
+                  stops: [0.35, 0.58, 1.0],
                 ),
               ),
             ),

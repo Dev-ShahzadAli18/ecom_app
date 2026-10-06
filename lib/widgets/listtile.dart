@@ -32,7 +32,7 @@ class CustomListTile extends StatelessWidget {
 
   final MouseCursor? mouseCursor;
 
-  const CustomListTile({
+   CustomListTile({
     super.key,
     this.leading,
     this.title,

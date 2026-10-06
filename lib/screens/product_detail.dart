@@ -13,7 +13,7 @@ class ProductDetailPage extends StatefulWidget {
   final VoidCallback onFavorite;
   final String role;
 
-  const ProductDetailPage({
+  ProductDetailPage({
     super.key,
     required this.product,
     required this.isFavorite,
@@ -100,14 +100,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text("Cancel"),
+              child: Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
                 deleteProduct();
               },
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              child: Text("Delete", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -248,7 +248,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ],
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         padding: EdgeInsets.only(
           left: horizontalPadding,
           right: horizontalPadding,
@@ -257,28 +257,28 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             // Responsive image
             CustomProductDetailImage(imageUrl: imageUrl, height: imageHeight),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             CustomProductDetailHeader(name: name, price: price),
 
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             CustomProductInfo(category: category, collection: collection),
 
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
 
             CustomProductDescription(description: description),
 
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
 
             CustomOrderAvailability(orderAvailable: orderAvailable),
 
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             // Seller / Admin Management Actions
             if (canManage) ...[
@@ -287,7 +287,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 onDelete: showDeleteDialog,
                 isDeleting: isDeleting,
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
             ],
 
             // Cart and order actions are only available to buyers.

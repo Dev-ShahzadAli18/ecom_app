@@ -12,7 +12,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 class HomePage extends StatefulWidget {
   final String role;
 
-  const HomePage({super.key, required this.role});
+  HomePage({super.key, required this.role});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return FirebaseFirestore.instance
@@ -175,10 +175,11 @@ class _HomePageState extends State<HomePage> {
                 }
               }
 
-              final double horizontalPadding = (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 24.0);
+              final double horizontalPadding =
+                  (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 24.0);
 
               return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.only(
                   left: horizontalPadding,
                   right: horizontalPadding,

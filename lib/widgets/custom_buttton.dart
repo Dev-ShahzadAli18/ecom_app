@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
 
   final double fontSize;
 
-  const CustomButton({
+  CustomButton({
     super.key,
     required this.text,
     this.onTap,
@@ -67,7 +67,7 @@ class CustomButton extends StatelessWidget {
                   disabledBackgroundColor ?? AppColors.lightGrey,
               disabledForegroundColor: AppColors.grey,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius),
                 side: side ?? BorderSide.none,
@@ -89,7 +89,7 @@ class CustomButton extends StatelessWidget {
                         children: [
                           if (icon != null) ...[
                             Icon(icon, color: foregroundColor),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                           ],
                           Flexible(
                             child: Text(

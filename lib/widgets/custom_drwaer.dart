@@ -356,7 +356,7 @@ class CustomDrawer extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const WelcomePage();
+              return WelcomePage();
             },
           ),
           (route) => false,

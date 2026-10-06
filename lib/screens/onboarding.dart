@@ -4,7 +4,7 @@ import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key});
+  OnboardingPage({super.key});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -24,13 +24,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void nextPage() {
     if (currentIndex < onboardingData.length - 1) {
       pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     }
   }
@@ -76,14 +76,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 onPressed: () {
                   if (currentIndex > 0) {
                     pageController.previousPage(
-                      duration: const Duration(milliseconds: 300),
+                      duration: Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                     );
                   } else if (Navigator.of(context).canPop()) {
                     Navigator.of(context).pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back, color: Color(0xff222222)),
+                icon: Icon(Icons.arrow_back, color: Color(0xff222222)),
               ),
             ),
             Align(
@@ -222,7 +222,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     borderRadius: 30,
                     textColor: Colors.black,
                     fontSize: 13,
-                    side: const BorderSide(color: Colors.white),
+                    side: BorderSide(color: Colors.white),
                   ),
                 ],
               ),

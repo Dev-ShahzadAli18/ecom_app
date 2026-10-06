@@ -9,7 +9,7 @@ class AllProductsCard extends StatelessWidget {
   final VoidCallback onFavorite;
   final String role;
 
-  const AllProductsCard({
+  AllProductsCard({
     super.key,
     required this.product,
     required this.isFavorite,
@@ -49,9 +49,7 @@ class AllProductsCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.grey.withValues(alpha: 0.08),
-          ),
+          border: Border.all(color: AppColors.grey.withValues(alpha: 0.08)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +61,7 @@ class AllProductsCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(14),
                       topRight: Radius.circular(14),
                     ),
@@ -86,12 +84,12 @@ class AllProductsCard extends StatelessWidget {
                     right: 6,
                     child: Material(
                       color: AppColors.white.withValues(alpha: 0.9),
-                      shape: const CircleBorder(),
+                      shape: CircleBorder(),
                       child: InkWell(
-                        customBorder: const CircleBorder(),
+                        customBorder: CircleBorder(),
                         onTap: onFavorite,
                         child: Padding(
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(6),
                           child: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
                             size: 18,
@@ -109,7 +107,7 @@ class AllProductsCard extends StatelessWidget {
             Expanded(
               flex: 4,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +121,7 @@ class AllProductsCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.title.copyWith(fontSize: 14),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           description,
                           maxLines: 1,

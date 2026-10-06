@@ -11,7 +11,7 @@ class CustomPasswordField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
 
-  const CustomPasswordField({
+  CustomPasswordField({
     super.key,
     this.controller,
     this.hintText = "Password",
