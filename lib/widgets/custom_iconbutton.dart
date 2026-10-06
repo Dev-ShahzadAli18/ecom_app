@@ -11,7 +11,7 @@ class CustomIconButton extends StatelessWidget {
   final double? size;
   final double? iconSize;
 
-  const CustomIconButton({
+  CustomIconButton({
     super.key,
     this.icon,
     this.onTap,

@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  SignupPage({super.key});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -117,19 +117,15 @@ class _SignupPageState extends State<SignupPage> {
     final double horizontalPadding = (screenWidth * 0.06).clamp(16.0, 28.0);
     final double topSpacing = mediaQuery.size.height < 680 ? 16.0 : 25.0;
 
-    Color lineColor = AppColors.isDark
-        ? const Color(0xff3A3A3A)
-        : const Color(0xffE5E5E5);
-    Color orColor = AppColors.isDark
-        ? const Color(0xff8A8A8A)
-        : const Color(0xff999999);
+    Color lineColor = AppColors.isDark ? Color(0xff3A3A3A) : Color(0xffE5E5E5);
+    Color orColor = AppColors.isDark ? Color(0xff8A8A8A) : Color(0xff999999);
 
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          physics: const BouncingScrollPhysics(),
+          physics: BouncingScrollPhysics(),
           child: Form(
             key: formKey,
             child: Column(
@@ -166,18 +162,18 @@ class _SignupPageState extends State<SignupPage> {
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.3),
                           blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.shopping_bag_outlined,
                       size: 32,
                       color: Colors.black,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Center(
                   child: Text(
                     "Create Account",
@@ -188,7 +184,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Center(
                   child: Text(
                     "Create an account to shop and track your orders",
@@ -197,7 +193,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
                 Text(
                   "Full Name",
                   style: TextStyle(
@@ -207,7 +203,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomTextField(
                   controller: nameController,
@@ -218,7 +214,7 @@ class _SignupPageState extends State<SignupPage> {
                   validator: Validators.name,
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // EMAIL
                 Text(
@@ -230,7 +226,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomTextField(
                   controller: emailController,
@@ -241,7 +237,7 @@ class _SignupPageState extends State<SignupPage> {
                   validator: Validators.email,
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // GENDER
                 Text(
@@ -253,12 +249,12 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomDropdownField(
                   value: selectedGender,
                   hint: "Select Gender",
-                  items: const ["Male", "Female", "Other"],
+                  items: ["Male", "Female", "Other"],
                   onChanged: (val) {
                     setState(() {
                       selectedGender = val;
@@ -266,7 +262,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // PHONE NUMBER
                 Text(
@@ -278,7 +274,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomTextField(
                   controller: phoneController,
@@ -289,7 +285,7 @@ class _SignupPageState extends State<SignupPage> {
                   validator: Validators.number,
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // PASSWORD
                 Text(
@@ -301,7 +297,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomPasswordField(
                   controller: passwordController,
@@ -312,7 +308,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // CONFIRM PASSWORD
                 Text(
@@ -324,7 +320,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomPasswordField(
                   controller: confirmPasswordController,
@@ -338,7 +334,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
 
                 CustomButton(
                   text: isLoading ? "Please wait..." : "Create Account",
@@ -352,13 +348,13 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
 
                 Row(
                   children: [
                     Expanded(child: Divider(color: lineColor)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         "OR",
                         style: TextStyle(
@@ -372,7 +368,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                 ),
 
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
 
                 // Google sign in placeholder
                 SizedBox(
@@ -402,7 +398,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 26),
+                SizedBox(height: 26),
 
                 Center(
                   child: Row(
@@ -423,7 +419,7 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           "Login",
                           style: TextStyle(
                             fontSize: 14,
@@ -436,7 +432,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
               ],
             ),
           ),

@@ -5,7 +5,7 @@ class CustomPageIndicator extends StatelessWidget {
   final int totalPages;
   final String? itemcount;
 
-  const CustomPageIndicator({
+  CustomPageIndicator({
     super.key,
     required this.currentIndex,
     required this.totalPages,

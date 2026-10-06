@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 
 class ForgotPassword extends StatefulWidget {
-  const ForgotPassword({super.key});
+  ForgotPassword({super.key});
 
   @override
   State<ForgotPassword> createState() => _ForgotPasswordState();
@@ -27,9 +27,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     final double screenWidth = mediaQuery.size.width;
     final double horizontalPadding = (screenWidth * 0.055).clamp(16.0, 24.0);
 
-    Color lineColor = AppColors.isDark ? const Color(0xff3A3A3A) : const Color(0xffE5E5E5);
-    Color arrowColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff555555);
-    Color descColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff4D4D4D);
+    Color lineColor = AppColors.isDark ? Color(0xff3A3A3A) : Color(0xffE5E5E5);
+    Color arrowColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff555555);
+    Color descColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff4D4D4D);
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -37,7 +37,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -45,7 +45,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 15),
+                      SizedBox(height: 15),
 
                       GestureDetector(
                         onTap: () {
@@ -66,7 +66,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         ),
                       ),
 
-                      const SizedBox(height: 35),
+                      SizedBox(height: 35),
 
                       Text(
                         "Forgot password?",
@@ -77,16 +77,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         ),
                       ),
 
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
 
                       Text(
                         "Enter your email associated with your account\n"
                         "and we'll send you a verification code to\n"
                         "reset your password.",
-                        style: TextStyle(fontSize: 12, height: 1.5, color: descColor),
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.5,
+                          color: descColor,
+                        ),
                       ),
 
-                      const SizedBox(height: 35),
+                      SizedBox(height: 35),
 
                       CustomTextField(
                         controller: emailController,
@@ -95,7 +99,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         prefixIcon: Icons.email_outlined,
                       ),
 
-                      const Spacer(),
+                      Spacer(),
 
                       SizedBox(
                         width: double.infinity,
@@ -106,14 +110,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const VerificationCode(),
+                                builder: (context) => VerificationCode(),
                               ),
                             );
                           },
                         ),
                       ),
 
-                      const SizedBox(height: 25),
+                      SizedBox(height: 25),
                     ],
                   ),
                 ),

@@ -10,7 +10,7 @@ class CustomDropdownField extends StatelessWidget {
   final Color? iconColor;
   final double borderRadius;
 
-  const CustomDropdownField({
+  CustomDropdownField({
     super.key,
     required this.value,
     required this.items,
@@ -27,7 +27,7 @@ class CustomDropdownField extends StatelessWidget {
     final bg = backgroundColor ?? Colors.white;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -40,7 +40,7 @@ class CustomDropdownField extends StatelessWidget {
           value: value,
           isExpanded: true,
           dropdownColor: bg,
-          hint: Text(hint, style: const TextStyle(fontSize: 15)),
+          hint: Text(hint, style: TextStyle(fontSize: 15)),
           icon: Icon(
             Icons.keyboard_arrow_down,
             color: iconColor ?? Color.fromARGB(255, 245, 183, 0),

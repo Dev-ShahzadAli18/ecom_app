@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 
 class ResetPassword extends StatefulWidget {
-  const ResetPassword({super.key});
+  ResetPassword({super.key});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
@@ -13,7 +13,8 @@ class ResetPassword extends StatefulWidget {
 
 class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -28,9 +29,9 @@ class _ResetPasswordState extends State<ResetPassword> {
     final double screenWidth = mediaQuery.size.width;
     final double horizontalPadding = (screenWidth * 0.055).clamp(16.0, 24.0);
 
-    Color lineColor = AppColors.isDark ? const Color(0xff3A3A3A) : const Color(0xffE5E5E5);
-    Color arrowColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff555555);
-    Color descColor = AppColors.isDark ? const Color(0xffB0B0B0) : const Color(0xff535252);
+    Color lineColor = AppColors.isDark ? Color(0xff3A3A3A) : Color(0xffE5E5E5);
+    Color arrowColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff555555);
+    Color descColor = AppColors.isDark ? Color(0xffB0B0B0) : Color(0xff535252);
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -38,7 +39,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -46,7 +47,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 15),
+                      SizedBox(height: 15),
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
@@ -66,7 +67,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                       ),
 
-                      const SizedBox(height: 35),
+                      SizedBox(height: 35),
 
                       Text(
                         "Create new password",
@@ -77,15 +78,19 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                       ),
 
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
 
                       Text(
                         "Your new password must be different\n"
                         "from previously used password.",
-                        style: TextStyle(fontSize: 12, height: 1.5, color: descColor),
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.5,
+                          color: descColor,
+                        ),
                       ),
 
-                      const SizedBox(height: 35),
+                      SizedBox(height: 35),
 
                       CustomTextField(
                         controller: passwordController,
@@ -94,7 +99,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         prefixIcon: Icons.lock_outline,
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       CustomTextField(
                         controller: confirmPasswordController,
@@ -103,7 +108,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         prefixIcon: Icons.lock_outline,
                       ),
 
-                      const Spacer(),
+                      Spacer(),
 
                       SizedBox(
                         width: double.infinity,
@@ -123,7 +128,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                       ),
 
-                      const SizedBox(height: 25),
+                      SizedBox(height: 25),
                     ],
                   ),
                 ),

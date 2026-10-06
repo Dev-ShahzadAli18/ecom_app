@@ -12,7 +12,7 @@ class CustomMyOrderCard extends StatelessWidget {
   final String address;
   final String date;
 
-  const CustomMyOrderCard({
+  CustomMyOrderCard({
     super.key,
     required this.name,
     required this.imageUrl,
@@ -42,8 +42,8 @@ class CustomMyOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
@@ -79,7 +79,7 @@ class CustomMyOrderCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
 
               Expanded(
                 child: Column(
@@ -96,7 +96,7 @@ class CustomMyOrderCard extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 5),
+                    SizedBox(height: 5),
 
                     Text(
                       "Rs. ${price.toStringAsFixed(0)}",
@@ -107,7 +107,7 @@ class CustomMyOrderCard extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
 
                     Text(
                       "Quantity: $quantity",
@@ -118,7 +118,7 @@ class CustomMyOrderCard extends StatelessWidget {
               ),
 
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: getStatusColor().withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -135,17 +135,17 @@ class CustomMyOrderCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           Divider(color: AppColors.grey.withValues(alpha: 0.12)),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           Row(
             children: [
               Icon(Icons.palette_outlined, size: 17, color: AppColors.grey),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Text(
                 "Color: ",
@@ -163,14 +163,14 @@ class CustomMyOrderCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.location_on_outlined, size: 17, color: AppColors.grey),
 
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
 
               Expanded(
                 child: Text(
@@ -181,12 +181,15 @@ class CustomMyOrderCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(date, style: TextStyle(fontSize: 11.5, color: AppColors.grey)),
+              Text(
+                date,
+                style: TextStyle(fontSize: 11.5, color: AppColors.grey),
+              ),
 
               Text(
                 "Total: Rs. ${totalPrice.toStringAsFixed(0)}",
@@ -205,13 +208,13 @@ class CustomMyOrderCard extends StatelessWidget {
 }
 
 class CustomEmptyOrders extends StatelessWidget {
-  const CustomEmptyOrders({super.key});
+  CustomEmptyOrders({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: EdgeInsets.all(30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -229,7 +232,7 @@ class CustomEmptyOrders extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             Text(
               "No Orders Yet",
@@ -240,7 +243,7 @@ class CustomEmptyOrders extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             Text(
               "Your placed orders will appear here",

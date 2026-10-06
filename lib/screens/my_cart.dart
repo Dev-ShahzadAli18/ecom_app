@@ -6,7 +6,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 
 class MyCartPage extends StatefulWidget {
-  const MyCartPage({super.key});
+  MyCartPage({super.key});
 
   @override
   State<MyCartPage> createState() => _MyCartPageState();
@@ -28,13 +28,13 @@ class _MyCartPageState extends State<MyCartPage> {
   Stream<QuerySnapshot> getCart() {
     final collection = cartCollection;
     if (collection == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return collection.snapshots();
   }
 
-  Future<void> increaseQuantity(String productId, int quantity) async {
+  Future increaseQuantity(String productId, int quantity) async {
     final collection = cartCollection;
     if (collection == null) return;
     await collection.doc(productId).update({"quantity": quantity + 1});
@@ -51,7 +51,7 @@ class _MyCartPageState extends State<MyCartPage> {
     await collection.doc(productId).update({"quantity": quantity - 1});
   }
 
-  Future<void> removeFromCart(String productId) async {
+  Future removeFromCart(String productId) async {
     final collection = cartCollection;
     if (collection == null) return;
     await collection.doc(productId).delete();
@@ -73,7 +73,7 @@ class _MyCartPageState extends State<MyCartPage> {
     return 1;
   }
 
-  Future<void> orderProduct(Map<String, dynamic> product) async {
+  Future orderProduct(Map<String, dynamic> product) async {
     if (user == null) {
       return;
     }
@@ -119,7 +119,7 @@ class _MyCartPageState extends State<MyCartPage> {
     }
   }
 
-  Future<void> orderAllProducts(List<Map<String, dynamic>> products) async {
+  Future orderAllProducts(List<Map<String, dynamic>> products) async {
     for (var product in products) {
       await orderProduct(product);
     }

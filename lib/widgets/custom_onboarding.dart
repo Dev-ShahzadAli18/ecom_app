@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CustomOnboardingCard extends StatelessWidget {
   final OnboardingModel data;
 
-  const CustomOnboardingCard({super.key, required this.data});
+  CustomOnboardingCard({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

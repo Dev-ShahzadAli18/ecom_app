@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -33,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.person_outline, size: 70, color: AppColors.grey),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "Please login to view your profile",
                 style: TextStyle(
@@ -42,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: AppColors.black,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               CustomButton(
                 text: "Go to Login",
                 width: 180,
@@ -99,11 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
               "value": data["email"] ?? user?.email ?? "",
               "icon": Icons.email_outlined,
             },
-            {
-              "title": "Role",
-              "value": role,
-              "icon": Icons.admin_panel_settings_outlined,
-            },
+
             {
               "title": "Gender",
               "value": data["gender"] ?? "Not specified",
@@ -135,29 +131,28 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: AppColors.black,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Manage your personal information & store settings",
                     style: TextStyle(fontSize: 13, color: AppColors.grey),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                  // Responsive Centered Avatar
                   Center(
-                    child: Container(
+                    child: CustomContainer(
                       height: avatarSize,
                       width: avatarSize,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
+
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 16,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+
                       child: Center(
                         child: Text(
                           (data["name"] != null &&
@@ -174,20 +169,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
+                    child: CustomContainer(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: 20,
+
                       child: Text(
-                        "Role: $role",
+                        " $role ",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -197,17 +192,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   Expanded(
                     child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
+                      physics: BouncingScrollPhysics(),
                       itemCount: profileData.length,
                       itemBuilder: (context, index) {
                         final item = profileData[index];
 
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: CustomContainer(
                             height: 84,
                             width: double.infinity,

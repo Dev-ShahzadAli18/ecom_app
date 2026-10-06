@@ -11,7 +11,7 @@ class AllProductsPage extends StatefulWidget {
   final String category;
   final String role;
 
-  const AllProductsPage({
+  AllProductsPage({
     super.key,
     required this.collectionName,
     this.category = "All",
@@ -34,7 +34,7 @@ class _AllProductsPageState extends State<AllProductsPage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return FirebaseFirestore.instance
@@ -44,7 +44,7 @@ class _AllProductsPageState extends State<AllProductsPage> {
         .snapshots();
   }
 
-  Future<void> toggleFavorite(Map<String, dynamic> product) async {
+  Future toggleFavorite(Map<String, dynamic> product) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -189,7 +189,7 @@ class _AllProductsPageState extends State<AllProductsPage> {
 
               return GridView.builder(
                 padding: EdgeInsets.all(padding),
-                physics: const BouncingScrollPhysics(),
+                physics: BouncingScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,

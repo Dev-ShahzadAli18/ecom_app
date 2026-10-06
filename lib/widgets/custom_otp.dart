@@ -7,22 +7,15 @@ class CustomOtpField extends StatelessWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
 
-  const CustomOtpField({
-    super.key,
-    this.length = 4,
-    this.controller,
-    this.onChanged,
-  });
+  CustomOtpField({super.key, this.length = 4, this.controller, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     Color normalBorder = AppColors.isDark
-        ? const Color(0xff3A3A3A)
-        : const Color(0xffE5E5E5);
+        ? Color(0xff3A3A3A)
+        : Color(0xffE5E5E5);
 
-    Color hintColor = AppColors.isDark
-        ? const Color(0xff6A6A6A)
-        : const Color(0xffBBBBBB);
+    Color hintColor = AppColors.isDark ? Color(0xff6A6A6A) : Color(0xffBBBBBB);
 
     return TextFormField(
       controller: controller,
@@ -44,7 +37,7 @@ class CustomOtpField extends StatelessWidget {
         hintStyle: TextStyle(color: hintColor, letterSpacing: 8),
         filled: true,
         fillColor: AppColors.background,
-        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+        contentPadding: EdgeInsets.symmetric(vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: normalBorder),

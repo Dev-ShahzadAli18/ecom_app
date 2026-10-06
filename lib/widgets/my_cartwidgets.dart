@@ -11,7 +11,7 @@ class CustomCartItem extends StatelessWidget {
   final VoidCallback onDecrease;
   final VoidCallback onDelete;
 
-  const CustomCartItem({
+  CustomCartItem({
     super.key,
     required this.name,
     required this.imageUrl,
@@ -25,8 +25,8 @@ class CustomCartItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
@@ -58,7 +58,7 @@ class CustomCartItem extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -75,7 +75,7 @@ class CustomCartItem extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
 
                 Text(
                   "Rs. ${price.toStringAsFixed(0)}",
@@ -86,7 +86,7 @@ class CustomCartItem extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
                 Row(
                   children: [
@@ -107,17 +107,17 @@ class CustomCartItem extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
 
                     Text(
                       quantity.toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
 
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
 
                     GestureDetector(
                       onTap: onIncrease,
@@ -128,11 +128,7 @@ class CustomCartItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                           color: AppColors.primary,
                         ),
-                        child: const Icon(
-                          Icons.add,
-                          size: 16,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.add, size: 16, color: Colors.white),
                       ),
                     ),
                   ],
@@ -168,19 +164,15 @@ class CustomCartBottom extends StatelessWidget {
   final double total;
   final VoidCallback onOrder;
 
-  const CustomCartBottom({
-    super.key,
-    required this.total,
-    required this.onOrder,
-  });
+  CustomCartBottom({super.key, required this.total, required this.onOrder});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 15, 20, 20),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),
@@ -188,7 +180,7 @@ class CustomCartBottom extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 15,
-            offset: const Offset(0, -4),
+            offset: Offset(0, -4),
           ),
         ],
       ),
@@ -197,7 +189,7 @@ class CustomCartBottom extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Total",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
@@ -213,7 +205,7 @@ class CustomCartBottom extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           CustomButton(
             text: "Order Now",
@@ -229,13 +221,13 @@ class CustomCartBottom extends StatelessWidget {
 }
 
 class CustomEmptyCart extends StatelessWidget {
-  const CustomEmptyCart({super.key});
+  CustomEmptyCart({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: EdgeInsets.all(30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -253,7 +245,7 @@ class CustomEmptyCart extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             Text(
               "Your Cart is Empty",
@@ -264,7 +256,7 @@ class CustomEmptyCart extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             Text(
               "Products you add to cart will appear here",

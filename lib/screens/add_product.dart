@@ -12,7 +12,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 class AddProductPage extends StatefulWidget {
   final Map<String, dynamic>? product;
 
-  const AddProductPage({super.key, this.product});
+  AddProductPage({super.key, this.product});
 
   @override
   State<AddProductPage> createState() => _AddProductPageState();
@@ -74,7 +74,7 @@ class _AddProductPageState extends State<AddProductPage> {
     orderAvailable = product["orderAvailable"] ?? true;
   }
 
-  Future<void> saveProduct() async {
+  Future saveProduct() async {
     String productName = productNameController.text.trim();
 
     String priceText = priceController.text.trim();
@@ -161,7 +161,7 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  Future<void> updateProduct({
+  Future updateProduct({
     required double price,
     required String productId,
   }) async {

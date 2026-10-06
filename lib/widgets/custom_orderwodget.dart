@@ -7,7 +7,7 @@ class CustomOrderProduct extends StatelessWidget {
   final double price;
   final int quantity;
 
-  const CustomOrderProduct({
+  CustomOrderProduct({
     super.key,
     required this.name,
     required this.imageUrl,
@@ -18,7 +18,7 @@ class CustomOrderProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
@@ -49,7 +49,7 @@ class CustomOrderProduct extends StatelessWidget {
                     ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +64,7 @@ class CustomOrderProduct extends StatelessWidget {
                     color: AppColors.black,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   "Rs. ${price.toStringAsFixed(0)}",
                   style: TextStyle(
@@ -73,7 +73,7 @@ class CustomOrderProduct extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   "Quantity: $quantity",
                   style: TextStyle(fontSize: 13, color: AppColors.grey),
@@ -92,7 +92,7 @@ class CustomColorSelector extends StatelessWidget {
   final String selectedColor;
   final Function(String) onColorSelected;
 
-  const CustomColorSelector({
+  CustomColorSelector({
     super.key,
     required this.colors,
     required this.selectedColor,
@@ -136,7 +136,7 @@ class CustomColorSelector extends StatelessWidget {
             onColorSelected(colorName);
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.10)
@@ -158,10 +158,12 @@ class CustomColorSelector extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: getColor(colorName),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.grey.withValues(alpha: 0.30)),
+                    border: Border.all(
+                      color: AppColors.grey.withValues(alpha: 0.30),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 7),
+                SizedBox(width: 7),
                 Text(
                   colorName,
                   style: TextStyle(
@@ -184,7 +186,7 @@ class CustomQuantitySelector extends StatelessWidget {
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
 
-  const CustomQuantitySelector({
+  CustomQuantitySelector({
     super.key,
     required this.quantity,
     required this.onIncrease,
@@ -207,12 +209,12 @@ class CustomQuantitySelector extends StatelessWidget {
             child: Icon(Icons.remove, size: 19, color: AppColors.black),
           ),
         ),
-        const SizedBox(width: 18),
+        SizedBox(width: 18),
         Text(
           quantity.toString(),
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(width: 18),
+        SizedBox(width: 18),
         GestureDetector(
           onTap: onIncrease,
           child: Container(
@@ -222,7 +224,7 @@ class CustomQuantitySelector extends StatelessWidget {
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.add, size: 19, color: Colors.white),
+            child: Icon(Icons.add, size: 19, color: Colors.white),
           ),
         ),
       ],
@@ -237,7 +239,7 @@ class CustomOrderTextField extends StatelessWidget {
   final int maxLines;
   final TextInputType keyboardType;
 
-  const CustomOrderTextField({
+  CustomOrderTextField({
     super.key,
     required this.controller,
     required this.hintText,
@@ -277,12 +279,12 @@ class CustomOrderTextField extends StatelessWidget {
 class CustomOrderTotal extends StatelessWidget {
   final double total;
 
-  const CustomOrderTotal({super.key, required this.total});
+  CustomOrderTotal({super.key, required this.total});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),

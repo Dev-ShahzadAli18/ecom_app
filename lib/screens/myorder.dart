@@ -7,7 +7,7 @@ import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 
 class MyOrdersPage extends StatelessWidget {
-  const MyOrdersPage({super.key});
+  MyOrdersPage({super.key});
 
   User? get user {
     return FirebaseAuth.instance.currentUser;
@@ -15,7 +15,7 @@ class MyOrdersPage extends StatelessWidget {
 
   Stream<QuerySnapshot> getOrders() {
     if (user == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return FirebaseFirestore.instance
@@ -134,11 +134,12 @@ class MyOrdersPage extends StatelessWidget {
             return CustomEmptyOrders();
           }
 
-          final double padding = (MediaQuery.of(context).size.width * 0.045).clamp(12.0, 20.0);
+          final double padding = (MediaQuery.of(context).size.width * 0.045)
+              .clamp(12.0, 20.0);
 
           return ListView.builder(
             padding: EdgeInsets.all(padding),
-            physics: const BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               DocumentSnapshot document = snapshot.data!.docs[index];

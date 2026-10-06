@@ -9,7 +9,7 @@ import 'package:ecom_app/widgets/custom_allproductcard.dart';
 class SearchPage extends StatefulWidget {
   final String role;
 
-  const SearchPage({super.key, this.role = "user"});
+  SearchPage({super.key, this.role = "user"});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -34,7 +34,7 @@ class _SearchPageState extends State<SearchPage> {
   Stream<QuerySnapshot<Map<String, dynamic>>> getFavorites() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return FirebaseFirestore.instance
@@ -89,7 +89,7 @@ class _SearchPageState extends State<SearchPage> {
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: "Search products",
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 suffixIcon: searchController.text.isEmpty
                     ? null
                     : IconButton(
@@ -98,7 +98,7 @@ class _SearchPageState extends State<SearchPage> {
                           searchController.clear();
                           setState(() {});
                         },
-                        icon: const Icon(Icons.close),
+                        icon: Icon(Icons.close),
                       ),
                 filled: true,
                 fillColor: AppColors.white,
@@ -172,7 +172,7 @@ class _SearchPageState extends State<SearchPage> {
 
                     return GridView.builder(
                       padding: EdgeInsets.all(padding),
-                      physics: const BouncingScrollPhysics(),
+                      physics: BouncingScrollPhysics(),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 12,

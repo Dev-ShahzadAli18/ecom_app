@@ -11,11 +11,7 @@ class OrderNowPage extends StatefulWidget {
   final Map<String, dynamic> product;
   final int initialQuantity;
 
-  const OrderNowPage({
-    super.key,
-    required this.product,
-    this.initialQuantity = 1,
-  });
+  OrderNowPage({super.key, required this.product, this.initialQuantity = 1});
 
   @override
   State<OrderNowPage> createState() => _OrderNowPageState();
@@ -184,7 +180,7 @@ class _OrderNowPageState extends State<OrderNowPage> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(
           horizontal: (MediaQuery.of(context).size.width * 0.045).clamp(
             14.0,

@@ -9,13 +9,13 @@ import 'package:ecom_app/theme/app_textstyle.dart';
 class FavouritePage extends StatelessWidget {
   final String role;
 
-  const FavouritePage({super.key, required this.role});
+  FavouritePage({super.key, required this.role});
 
   Stream<QuerySnapshot> getFavorites() {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Stream.empty();
+      return Stream.empty();
     }
 
     return FirebaseFirestore.instance
@@ -25,7 +25,7 @@ class FavouritePage extends StatelessWidget {
         .snapshots();
   }
 
-  Future<void> removeFavorite(String productId) async {
+  Future removeFavorite(String productId) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -109,7 +109,7 @@ class FavouritePage extends StatelessWidget {
 
           return GridView.builder(
             padding: EdgeInsets.all(padding),
-            physics: const BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,

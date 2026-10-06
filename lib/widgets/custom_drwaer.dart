@@ -61,7 +61,6 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
 
-                // ADMIN ONLY
                 if (isAdmin)
                   _menu(
                     context,
@@ -81,7 +80,6 @@ class CustomDrawer extends StatelessWidget {
                     },
                   ),
 
-                // ADMIN ONLY
                 if (isAdmin)
                   _menu(
                     context,
@@ -103,8 +101,6 @@ class CustomDrawer extends StatelessWidget {
                       );
                     },
                   ),
-
-                // SEARCH
                 _menu(
                   context,
                   Icons.search,
@@ -356,7 +352,7 @@ class CustomDrawer extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const WelcomePage();
+              return WelcomePage();
             },
           ),
           (route) => false,
@@ -385,9 +381,13 @@ class CustomDrawer extends StatelessWidget {
   }
 
   Widget _themeSwitch() {
-    Color pillBg = AppColors.isDark ? Color(0xff252525) : Color(0xffF3F4F6);
+    Color pillBg = AppColors.isDark
+        ? Color.fromARGB(255, 37, 37, 37)
+        : Color.fromARGB(255, 243, 244, 246);
 
-    Color activeBg = AppColors.isDark ? Color(0xff3A3A3A) : Colors.white;
+    Color activeBg = AppColors.isDark
+        ? Color.fromARGB(255, 58, 58, 58)
+        : Colors.white;
 
     return Container(
       height: 44,

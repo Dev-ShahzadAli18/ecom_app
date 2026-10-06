@@ -20,7 +20,7 @@ class CustomContainer extends StatelessWidget {
   final VoidCallback? onTap;
   final BoxShape? shape;
 
-  const CustomContainer({
+  CustomContainer({
     super.key,
     required this.child,
     this.padding,
@@ -59,7 +59,7 @@ class CustomContainer extends StatelessWidget {
               BoxShadow(
                 color: Colors.black.withValues(alpha: shadowOpacity),
                 blurRadius: 10,
-                offset: const Offset(0, 4),
+                offset: Offset(0, 4),
               ),
             ],
       ),

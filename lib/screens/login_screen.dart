@@ -13,7 +13,7 @@ import 'package:firebase_logic/firebase_logic.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -123,19 +123,15 @@ class _LoginPageState extends State<LoginPage> {
     final double horizontalPadding = (screenWidth * 0.06).clamp(16.0, 28.0);
     final double topSpacing = mediaQuery.size.height < 680 ? 20.0 : 35.0;
 
-    Color lineColor = AppColors.isDark
-        ? const Color(0xff3A3A3A)
-        : const Color(0xffE5E5E5);
-    Color orColor = AppColors.isDark
-        ? const Color(0xff8A8A8A)
-        : const Color(0xff999999);
+    Color lineColor = AppColors.isDark ? Color(0xff3A3A3A) : Color(0xffE5E5E5);
+    Color orColor = AppColors.isDark ? Color(0xff8A8A8A) : Color(0xff999999);
 
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          physics: const BouncingScrollPhysics(),
+          physics: BouncingScrollPhysics(),
           child: Form(
             key: formKey,
             child: Column(
@@ -163,11 +159,11 @@ class _LoginPageState extends State<LoginPage> {
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.3),
                           blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.shopping_bag_outlined,
                       size: 32,
                       color: Colors.black,
@@ -175,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
 
                 Center(
                   child: Text(
@@ -188,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 Center(
                   child: Text(
@@ -198,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 35),
+                SizedBox(height: 35),
 
                 Text(
                   "Email",
@@ -209,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomTextField(
                   controller: emailController,
@@ -220,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                   validator: Validators.email,
                 ),
 
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
 
                 Text(
                   "Password",
@@ -231,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 CustomPasswordField(
                   controller: passwordController,
@@ -242,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 Align(
                   alignment: Alignment.centerRight,
@@ -257,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       "Forgot Password?",
                       style: TextStyle(
                         fontSize: 13,
@@ -268,7 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
 
                 CustomButton(
                   text: isLoading ? "Please wait..." : "Login",
@@ -282,13 +278,13 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
 
                 Row(
                   children: [
                     Expanded(child: Divider(color: lineColor)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         "OR",
                         style: TextStyle(
@@ -302,7 +298,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
 
                 SizedBox(
                   width: double.infinity,
@@ -331,7 +327,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
 
                 Center(
                   child: Row(
@@ -347,12 +343,12 @@ class _LoginPageState extends State<LoginPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return const SignupPage();
+                                return SignupPage();
                               },
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           "Sign Up",
                           style: TextStyle(
                             color: Color(0xffD99F00),
@@ -365,7 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
               ],
             ),
           ),

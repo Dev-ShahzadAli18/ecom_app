@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class MainNavigation extends StatefulWidget {
   final String role;
 
-  const MainNavigation({super.key, required this.role});
+  MainNavigation({super.key, required this.role});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
