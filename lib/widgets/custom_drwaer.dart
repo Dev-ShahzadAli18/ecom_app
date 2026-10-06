@@ -403,7 +403,7 @@ class CustomDrawer extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                darkNotifier.value = false;
+                darkNotifier.value = true;
               },
               child: Container(
                 decoration: BoxDecoration(
