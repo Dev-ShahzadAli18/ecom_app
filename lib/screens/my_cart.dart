@@ -73,38 +73,168 @@ class _MyCartPageState extends State<MyCartPage> {
     return 1;
   }
 
-  Future orderProduct(Map<String, dynamic> product) async {
-    if (user == null) {
+  Future<Map<String, String>?> _collectDeliveryDetails() async {
+    final currentUser = user;
+    if (currentUser == null) {
+      return null;
+    }
+
+    Map<String, dynamic> profile = {};
+    try {
+      final profileSnapshot = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(currentUser.uid)
+          .get();
+      profile = profileSnapshot.data() ?? {};
+    } catch (_) {}
+
+    if (!mounted) {
+      return null;
+    }
+
+    final nameController = TextEditingController(
+      text: (profile["name"] ?? "").toString(),
+    );
+    final phoneController = TextEditingController(
+      text: (profile["Phone Number"] ?? profile["phone"] ?? "").toString(),
+    );
+    final addressController = TextEditingController(
+      text: (profile["address"] ?? "").toString(),
+    );
+    final formKey = GlobalKey<FormState>();
+
+    try {
+      return await showDialog<Map<String, String>>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: Text("Delivery details", style: AppTextStyles.title),
+            content: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _deliveryField(
+                      controller: nameController,
+                      label: "Full name",
+                      icon: Icons.person_outline,
+                    ),
+                    SizedBox(height: 12),
+                    _deliveryField(
+                      controller: phoneController,
+                      label: "Phone number",
+                      icon: Icons.phone_outlined,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 12),
+                    _deliveryField(
+                      controller: addressController,
+                      label: "Delivery address",
+                      icon: Icons.location_on_outlined,
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (formKey.currentState?.validate() != true) {
+                    return;
+                  }
+
+                  Navigator.pop(dialogContext, {
+                    "customerName": nameController.text.trim(),
+                    "phone": phoneController.text.trim(),
+                    "address": addressController.text.trim(),
+                  });
+                },
+                child: Text("Continue"),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      nameController.dispose();
+      phoneController.dispose();
+      addressController.dispose();
+    }
+  }
+
+  Widget _deliveryField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: AppColors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      validator: (value) =>
+          value == null || value.trim().isEmpty ? "Enter your $label" : null,
+    );
+  }
+
+  Future<void> orderAllProducts(List<Map<String, dynamic>> products) async {
+    final currentUser = user;
+    if (currentUser == null || products.isEmpty) {
       return;
     }
 
-    double price = getPrice(product);
-    int quantity = getQuantity(product);
-
-    double totalPrice = price * quantity;
+    final deliveryDetails = await _collectDeliveryDetails();
+    if (deliveryDetails == null) {
+      return;
+    }
 
     try {
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user!.uid)
-          .collection("orders")
-          .add({
-            "productId": product["productId"] ?? "",
-            "name": product["name"] ?? "",
-            "price": price,
-            "imageUrl": product["imageUrl"] ?? "",
-            "quantity": quantity,
-            "totalPrice": totalPrice,
-            "status": "Pending",
-            "createdAt": FieldValue.serverTimestamp(),
-          });
+      for (final product in products) {
+        final price = getPrice(product);
+        final quantity = getQuantity(product);
+        final productId = (product["productId"] ?? product["documentId"] ?? "")
+            .toString();
 
-      await cartCollection?.doc(product["productId"]).delete();
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("orders")
+            .add({
+              "productId": productId,
+              "name": product["name"] ?? "",
+              "price": price,
+              "imageUrl": product["imageUrl"] ?? "",
+              "quantity": quantity,
+              "totalPrice": price * quantity,
+              "customerName": deliveryDetails["customerName"],
+              "phone": deliveryDetails["phone"],
+              "address": deliveryDetails["address"],
+              "email": currentUser.email ?? "",
+              "status": "Pending",
+              "createdAt": FieldValue.serverTimestamp(),
+            });
+
+        await cartCollection?.doc(productId).delete();
+      }
 
       if (!mounted) {
         return;
       }
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Order placed successfully")));
@@ -112,16 +242,9 @@ class _MyCartPageState extends State<MyCartPage> {
       if (!mounted) {
         return;
       }
-
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Failed to place order")));
-    }
-  }
-
-  Future orderAllProducts(List<Map<String, dynamic>> products) async {
-    for (var product in products) {
-      await orderProduct(product);
+      ).showSnackBar(SnackBar(content: Text("Failed to place all orders")));
     }
   }
 
