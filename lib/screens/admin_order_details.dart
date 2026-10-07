@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 import 'package:ecom_app/theme/app_colors.dart';
-
 import 'package:ecom_app/theme/app_textstyle.dart';
-
 import 'package:ecom_app/widgets/custom_container.dart';
-
-import 'package:flutter/material.dart';
+import 'package:ecom_app/widgets/custom_detail_row.dart';
 
 class AdminOrderDetailsPage extends StatefulWidget {
   final String orderId;
@@ -42,6 +40,7 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
         .collection("users")
         .doc(widget.buyerId)
         .get();
+
     return snapshot.data() ?? {};
   }
 
@@ -55,11 +54,13 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
 
   String _display(dynamic orderValue, dynamic profileValue) {
     final orderText = orderValue?.toString().trim() ?? "";
+
     if (orderText.isNotEmpty) {
       return orderText;
     }
 
     final profileText = profileValue?.toString().trim() ?? "";
+
     return profileText.isEmpty ? "Not provided" : profileText;
   }
 
@@ -69,45 +70,25 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
     }
 
     final date = value.toDate();
-    return "${date.day.toString().padLeft(2, "0")}/${date.month.toString().padLeft(2, "0")}/${date.year}  ${date.hour.toString().padLeft(2, "0")}:${date.minute.toString().padLeft(2, "0")}";
-  }
 
-  Widget _detailRow(String label, String value, {IconData? icon}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18, color: AppColors.grey),
-            SizedBox(width: 10),
-          ],
-          SizedBox(
-            width: 92,
-            child: Text(
-              label,
-              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyles.body.copyWith(color: AppColors.black),
-            ),
-          ),
-        ],
-      ),
-    );
+    return "${date.day.toString().padLeft(2, "0")}/"
+        "${date.month.toString().padLeft(2, "0")}/"
+        "${date.year}  "
+        "${date.hour.toString().padLeft(2, "0")}:"
+        "${date.minute.toString().padLeft(2, "0")}";
   }
 
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
+
     final quantity = _quantity(order["quantity"]);
     final price = _number(order["price"]);
+
     final total = order["totalPrice"] is num
         ? _number(order["totalPrice"])
         : price * quantity;
+
     final padding = (MediaQuery.sizeOf(context).width * 0.05).clamp(14.0, 24.0);
 
     return Scaffold(
@@ -132,17 +113,23 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
           }
 
           final customer = snapshot.data ?? {};
+
           final customerName = _display(
             order["customerName"],
             customer["name"],
           );
+
           final phone = _display(
             order["phone"],
             customer["Phone Number"] ?? customer["phone"],
           );
+
           final address = _display(order["address"], customer["address"]);
+
           final email = _display(order["email"], customer["email"]);
+
           final productName = (order["name"] ?? "Order item").toString();
+
           final imageUrl = (order["imageUrl"] ?? "").toString();
 
           return ListView(
@@ -170,11 +157,12 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                           : Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: AppColors.grey,
-                                  ),
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: AppColors.grey,
+                                );
+                              },
                             ),
                     ),
                     SizedBox(width: 14),
@@ -190,7 +178,8 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "${(order["status"] ?? "Pending")} · ${_formatDate(order["createdAt"])}",
+                            "${order["status"] ?? "Pending"} · "
+                            "${_formatDate(order["createdAt"])}",
                             style: AppTextStyles.body.copyWith(fontSize: 12),
                           ),
                         ],
@@ -199,7 +188,9 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   ],
                 ),
               ),
+
               SizedBox(height: 14),
+
               CustomContainer(
                 padding: EdgeInsets.all(16),
                 borderRadius: 12,
@@ -208,22 +199,36 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   children: [
                     Text("Customer", style: AppTextStyles.title),
                     SizedBox(height: 8),
-                    _detailRow(
-                      "Name",
-                      customerName,
+
+                    CustomDetailRow(
+                      label: "Name",
+                      value: customerName,
                       icon: Icons.person_outline,
                     ),
-                    _detailRow("Phone", phone, icon: Icons.phone_outlined),
-                    _detailRow("Email", email, icon: Icons.email_outlined),
-                    _detailRow(
-                      "Address",
-                      address,
+
+                    CustomDetailRow(
+                      label: "Phone",
+                      value: phone,
+                      icon: Icons.phone_outlined,
+                    ),
+
+                    CustomDetailRow(
+                      label: "Email",
+                      value: email,
+                      icon: Icons.email_outlined,
+                    ),
+
+                    CustomDetailRow(
+                      label: "Address",
+                      value: address,
                       icon: Icons.location_on_outlined,
                     ),
                   ],
                 ),
               ),
+
               SizedBox(height: 14),
+
               CustomContainer(
                 padding: EdgeInsets.all(16),
                 borderRadius: 12,
@@ -232,12 +237,30 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   children: [
                     Text("Order", style: AppTextStyles.title),
                     SizedBox(height: 8),
-                    _detailRow("Product", productName),
-                    _detailRow("Quantity", quantity.toString()),
-                    _detailRow("Color", _display(order["color"], null)),
-                    _detailRow("Unit price", "Rs. ${price.toStringAsFixed(0)}"),
+
+                    CustomDetailRow(label: "Product", value: productName),
+
+                    CustomDetailRow(
+                      label: "Quantity",
+                      value: quantity.toString(),
+                    ),
+
+                    CustomDetailRow(
+                      label: "Color",
+                      value: _display(order["color"], null),
+                    ),
+
+                    CustomDetailRow(
+                      label: "Unit price",
+                      value: "Rs. ${price.toStringAsFixed(0)}",
+                    ),
+
                     Divider(color: AppColors.grey.withValues(alpha: 0.15)),
-                    _detailRow("Total", "Rs. ${total.toStringAsFixed(0)}"),
+
+                    CustomDetailRow(
+                      label: "Total",
+                      value: "Rs. ${total.toStringAsFixed(0)}",
+                    ),
                   ],
                 ),
               ),
