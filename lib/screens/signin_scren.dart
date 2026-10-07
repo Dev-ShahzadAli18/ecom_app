@@ -133,7 +133,6 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 SizedBox(height: topSpacing),
 
-                // Back Button
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
@@ -216,7 +215,6 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 16),
 
-                // EMAIL
                 Text(
                   "Email",
                   style: TextStyle(
@@ -239,7 +237,6 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 16),
 
-                // GENDER
                 Text(
                   "Gender",
                   style: TextStyle(
@@ -263,8 +260,6 @@ class _SignupPageState extends State<SignupPage> {
                 ),
 
                 SizedBox(height: 16),
-
-                // PHONE NUMBER
                 Text(
                   "Phone Number",
                   style: TextStyle(
@@ -286,8 +281,6 @@ class _SignupPageState extends State<SignupPage> {
                 ),
 
                 SizedBox(height: 16),
-
-                // PASSWORD
                 Text(
                   "Password",
                   style: TextStyle(
@@ -310,7 +303,6 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 16),
 
-                // CONFIRM PASSWORD
                 Text(
                   "Confirm Password",
                   style: TextStyle(
@@ -370,7 +362,6 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 22),
 
-                // Google sign in placeholder
                 SizedBox(
                   width: double.infinity,
                   height: 52,

@@ -98,14 +98,16 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color normalBorder = AppColors.isDark
-        ? Color(0xff3A3A3A)
-        : Color(0xffE5E5E5);
+        ? Color.fromARGB(255, 58, 58, 58)
+        : Color.fromARGB(255, 229, 229, 229);
 
-    Color hintColor = AppColors.isDark ? Color(0xff8A8A8A) : Color(0xff999999);
+    Color hintColor = AppColors.isDark
+        ? Color.fromARGB(255, 138, 138, 138)
+        : Color.fromARGB(255, 153, 153, 153);
 
     Color disabledBorder = AppColors.isDark
-        ? Color(0xff2C2C2C)
-        : Color(0xffEEEEEE);
+        ? Color.fromARGB(255, 44, 44, 44)
+        : Color.fromARGB(255, 238, 238, 238);
 
     return TextFormField(
       controller: controller,

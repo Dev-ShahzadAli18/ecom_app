@@ -60,7 +60,6 @@ class _LoginPageState extends State<LoginPage> {
 
       String finalRole = result.role.trim().toLowerCase();
 
-      // Ensure we query Firestore for the authentic user role & profile details
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         try {
