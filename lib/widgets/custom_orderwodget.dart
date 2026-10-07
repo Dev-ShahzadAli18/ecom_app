@@ -212,7 +212,11 @@ class CustomQuantitySelector extends StatelessWidget {
         SizedBox(width: 18),
         Text(
           quantity.toString(),
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: AppColors.black,
+          ),
         ),
         SizedBox(width: 18),
         GestureDetector(
@@ -254,9 +258,14 @@ class CustomOrderTextField extends StatelessWidget {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      cursorColor: AppColors.primary,
+      style: TextStyle(color: AppColors.black, fontSize: 15),
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
+        labelStyle: TextStyle(color: AppColors.grey),
+        floatingLabelStyle: TextStyle(color: AppColors.primary),
+        hintStyle: TextStyle(color: AppColors.grey),
         filled: true,
         fillColor: AppColors.white,
         border: OutlineInputBorder(

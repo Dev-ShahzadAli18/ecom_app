@@ -54,7 +54,6 @@ class AllProductsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Proportional flexible image that adapts to any mobile screen size
             Expanded(
               flex: 5,
               child: Stack(
@@ -103,7 +102,6 @@ class AllProductsCard extends StatelessWidget {
               ),
             ),
 
-            // Product text information
             Expanded(
               flex: 4,
               child: Padding(

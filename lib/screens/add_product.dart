@@ -20,29 +20,19 @@ class AddProductPage extends StatefulWidget {
 
 class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController productNameController = TextEditingController();
-
   final TextEditingController priceController = TextEditingController();
-
   final TextEditingController imageUrlController = TextEditingController();
-
   final TextEditingController descriptionController = TextEditingController();
-
   bool orderAvailable = true;
-
   String selectedCategory = "Women";
-
   String selectedCollection = "Featured";
-
   bool isSaving = false;
-
   final List<String> categories = ["Women", "Men", "Accessories", "Beauty"];
-
   final List<String> collections = [
     "Featured",
     "Recommended",
     "Top Collection",
   ];
-
   bool get isEditMode {
     return widget.product != null;
   }
@@ -50,7 +40,6 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   void initState() {
     super.initState();
-
     if (isEditMode) {
       loadOldProductData();
     }
@@ -58,31 +47,20 @@ class _AddProductPageState extends State<AddProductPage> {
 
   void loadOldProductData() {
     Map<String, dynamic> product = widget.product!;
-
     productNameController.text = product["name"] ?? "";
-
     priceController.text = product["price"]?.toString() ?? "";
-
     imageUrlController.text = product["imageUrl"] ?? "";
-
     descriptionController.text = product["description"] ?? "";
-
     selectedCategory = product["category"] ?? "Women";
-
     selectedCollection = product["collection"] ?? "Featured";
-
     orderAvailable = product["orderAvailable"] ?? true;
   }
 
   Future saveProduct() async {
     String productName = productNameController.text.trim();
-
     String priceText = priceController.text.trim();
-
     String imageUrl = imageUrlController.text.trim();
-
     String description = descriptionController.text.trim();
-
     if (productName.isEmpty ||
         priceText.isEmpty ||
         imageUrl.isEmpty ||
@@ -90,34 +68,25 @@ class _AddProductPageState extends State<AddProductPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Please fill all fields")));
-
       return;
     }
-
     double? price = double.tryParse(priceText);
-
     if (price == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Please enter a valid price")));
-
       return;
     }
-
     User? user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Please login first")));
-
       return;
     }
-
     setState(() {
       isSaving = true;
     });
-
     try {
       if (isEditMode) {
         await updateProduct(price: price, productId: widget.product!["id"]);

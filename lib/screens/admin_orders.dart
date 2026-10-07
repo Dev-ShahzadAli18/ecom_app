@@ -73,11 +73,12 @@ class AdminOrdersPage extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
+            final error = snapshot.error;
             return Center(
               child: Padding(
                 padding: EdgeInsets.all(padding),
                 child: Text(
-                  "Unable to load orders. Check the Firestore collection-group access rules.",
+                  "Unable to load orders.\n$error",
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body,
                 ),
