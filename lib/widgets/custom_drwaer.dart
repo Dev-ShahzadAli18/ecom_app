@@ -1,5 +1,6 @@
 import 'package:ecom_app/main.dart';
 import 'package:ecom_app/screens/add_product.dart';
+import 'package:ecom_app/screens/admin_orders.dart';
 import 'package:ecom_app/screens/all_product.dart';
 import 'package:ecom_app/screens/my_cart.dart';
 import 'package:ecom_app/screens/myorder.dart';
@@ -97,6 +98,21 @@ class CustomDrawer extends StatelessWidget {
                               role: role,
                             );
                           },
+                        ),
+                      );
+                    },
+                  ),
+                if (isAdmin)
+                  _menu(
+                    context,
+                    Icons.receipt_long_outlined,
+                    "Customer Orders",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdminOrdersPage(role: role),
                         ),
                       );
                     },
