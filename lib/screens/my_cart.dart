@@ -180,12 +180,28 @@ class _MyCartPageState extends State<MyCartPage> {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      cursorColor: AppColors.primary,
+      style: TextStyle(color: AppColors.black, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        labelStyle: TextStyle(color: AppColors.grey),
+        floatingLabelStyle: TextStyle(color: AppColors.primary),
+        hintStyle: TextStyle(color: AppColors.grey),
+        prefixIcon: Icon(icon, color: AppColors.grey),
         filled: true,
         fillColor: AppColors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
       ),
       validator: (value) =>
           value == null || value.trim().isEmpty ? "Enter your $label" : null,
