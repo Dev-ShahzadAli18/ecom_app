@@ -2,7 +2,6 @@ import 'package:ecom_app/services/admin_service.dart';
 import 'package:ecom_app/services/order_service.dart';
 import 'package:ecom_app/services/user_service.dart';
 import 'package:flutter/material.dart';
-
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
@@ -42,11 +41,9 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
-
     final quantity = _orderService.getQuantity(order);
     final price = _orderService.getPrice(order);
     final total = _orderService.getTotalPrice(order);
-
     final padding = (MediaQuery.sizeOf(context).width * 0.05).clamp(14.0, 24.0);
 
     return Scaffold(
@@ -131,33 +128,25 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
-
           final customer = snapshot.data ?? {};
-
           final customerName = _userService.resolveOrderProfileValue(
             order["customerName"],
             customer["name"],
           );
-
           final phone = _userService.resolveOrderProfileValue(
             order["phone"],
             customer["Phone Number"] ?? customer["phone"],
           );
-
           final address = _userService.resolveOrderProfileValue(
             order["address"],
             customer["address"],
           );
-
           final email = _userService.resolveOrderProfileValue(
             order["email"],
             customer["email"],
           );
-
           final productName = (order["name"] ?? "Order item").toString();
-
           final imageUrl = (order["imageUrl"] ?? "").toString();
-
           return ListView(
             padding: EdgeInsets.all(padding),
             children: [
@@ -214,9 +203,7 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   ],
                 ),
               ),
-
               SizedBox(height: 14),
-
               CustomContainer(
                 padding: EdgeInsets.all(16),
                 borderRadius: 12,
@@ -225,25 +212,21 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   children: [
                     Text("Customer", style: AppTextStyles.title),
                     SizedBox(height: 8),
-
                     CustomDetailRow(
                       label: "Name",
                       value: customerName,
                       icon: Icons.person_outline,
                     ),
-
                     CustomDetailRow(
                       label: "Phone",
                       value: phone,
                       icon: Icons.phone_outlined,
                     ),
-
                     CustomDetailRow(
                       label: "Email",
                       value: email,
                       icon: Icons.email_outlined,
                     ),
-
                     CustomDetailRow(
                       label: "Address",
                       value: address,
@@ -252,9 +235,7 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   ],
                 ),
               ),
-
               SizedBox(height: 14),
-
               CustomContainer(
                 padding: EdgeInsets.all(16),
                 borderRadius: 12,
@@ -263,14 +244,11 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                   children: [
                     Text("Order", style: AppTextStyles.title),
                     SizedBox(height: 8),
-
                     CustomDetailRow(label: "Product", value: productName),
-
                     CustomDetailRow(
                       label: "Quantity",
                       value: quantity.toString(),
                     ),
-
                     CustomDetailRow(
                       label: "Color",
                       value: _userService.resolveOrderProfileValue(
@@ -278,14 +256,11 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                         null,
                       ),
                     ),
-
                     CustomDetailRow(
                       label: "Unit price",
                       value: "Rs. ${price.toStringAsFixed(0)}",
                     ),
-
                     Divider(color: AppColors.grey.withValues(alpha: 0.15)),
-
                     CustomDetailRow(
                       label: "Total",
                       value: "Rs. ${total.toStringAsFixed(0)}",
