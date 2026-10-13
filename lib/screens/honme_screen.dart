@@ -1,7 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/category_service.dart';
+import 'package:ecom_app/services/favorite_service.dart';
+import 'package:ecom_app/services/product_service.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
-import 'package:ecom_app/widgets/custom_categorybutton.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_drwaer.dart';
 import 'package:ecom_app/widgets/custom_productsection.dart';
 import 'package:ecom_app/widgets/custom_sectiontitle.dart';
@@ -19,78 +21,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ProductService _productService = ProductService();
+  final FavoriteService _favoriteService = FavoriteService();
+  final AuthService _authService = AuthService();
+  final CategoryService _categoryService = CategoryService();
   int selectedCategory = 0;
 
-  final List<String> categories = [
-    "All",
-    "Women",
-    "Men",
-    "Accessories",
-    "Beauty",
-  ];
-
-  final List<IconData> categoryIcons = [
-    Icons.apps,
-    Icons.woman,
-    Icons.man,
-    Icons.watch_outlined,
-    Icons.face_retouching_natural,
-  ];
-
-  Stream<QuerySnapshot> getProducts() {
-    return FirebaseFirestore.instance
-        .collection("products")
-        .orderBy("createdAt", descending: true)
-        .snapshots();
-  }
-
-  Stream<QuerySnapshot> getFavorites() {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .snapshots();
-  }
-
-  Future toggleFavorite(Map<String, dynamic> product) async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return;
-    }
-
-    String productId = product["id"];
-
-    DocumentReference favoriteRef = FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .doc(productId);
-
-    DocumentSnapshot favorite = await favoriteRef.get();
-
-    if (favorite.exists) {
-      await favoriteRef.delete();
-    } else {
-      await favoriteRef.set(product);
-    }
-  }
-
-  bool categoryMatches(Map<String, dynamic> product) {
-    if (selectedCategory == 0) {
-      return true;
-    }
-
-    String selected = categories[selectedCategory];
-
-    return product["category"] == selected;
-  }
+  final List<String> categories = CategoryService.categoriesWithAll;
+  final List<IconData> categoryIcons = CategoryService.defaultCategoryIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +66,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
 
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getProducts(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _productService.watchProducts(),
 
         builder: (context, productSnapshot) {
           if (productSnapshot.connectionState == ConnectionState.waiting) {
@@ -144,36 +82,24 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-          if (!productSnapshot.hasData || productSnapshot.data!.docs.isEmpty) {
+          if (!productSnapshot.hasData || productSnapshot.data!.isEmpty) {
             return Center(
               child: Text("No products available", style: AppTextStyles.body),
             );
           }
 
-          List<Map<String, dynamic>> products = [];
+          final products = _categoryService.filterByCategory(
+            productSnapshot.data!,
+            categories[selectedCategory],
+          );
 
-          for (var document in productSnapshot.data!.docs) {
-            Map<String, dynamic> product =
-                document.data() as Map<String, dynamic>;
-
-            product["id"] = document.id;
-
-            if (categoryMatches(product)) {
-              products.add(product);
-            }
-          }
-
-          return StreamBuilder<QuerySnapshot>(
-            stream: getFavorites(),
+          return StreamBuilder<Set<String>>(
+            stream: _favoriteService.watchFavoriteIds(
+              _authService.currentUser?.uid,
+            ),
 
             builder: (context, favoriteSnapshot) {
-              Set<String> favoriteIds = {};
-
-              if (favoriteSnapshot.hasData) {
-                for (var document in favoriteSnapshot.data!.docs) {
-                  favoriteIds.add(document.id);
-                }
-              }
+              final favoriteIds = favoriteSnapshot.data ?? <String>{};
 
               final double horizontalPadding =
                   (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 24.0);
@@ -207,16 +133,64 @@ class _HomePageState extends State<HomePage> {
                           return Padding(
                             padding: EdgeInsets.only(right: 12),
 
-                            child: CategoryButton(
-                              title: categories[index],
-                              icon: categoryIcons[index],
-                              isSelected: selectedCategory == index,
-
+                            child: CustomButton(
+                              text: categories[index],
+                              width: 80,
+                              height: 95,
+                              borderRadius: 12,
+                              padding: EdgeInsets.zero,
+                              backgroundColor: Colors.transparent,
+                              disabledBackgroundColor: Colors.transparent,
+                              textColor: AppColors.black,
                               onTap: () {
                                 setState(() {
                                   selectedCategory = index;
                                 });
                               },
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AnimatedContainer(
+                                    duration: Duration(milliseconds: 200),
+                                    height: 58,
+                                    width: 58,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: selectedCategory == index
+                                          ? AppColors.primary
+                                          : AppColors.lightGrey,
+                                      border: Border.all(
+                                        color: selectedCategory == index
+                                            ? AppColors.primary
+                                            : AppColors.lightGrey,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      categoryIcons[index],
+                                      size: 25,
+                                      color: selectedCategory == index
+                                          ? Colors.white
+                                          : AppColors.black,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    categories[index],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: AppTextStyles.body.copyWith(
+                                      color: selectedCategory == index
+                                          ? AppColors.black
+                                          : AppColors.grey,
+                                      fontWeight: selectedCategory == index
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -235,15 +209,17 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 15),
 
                     CustomProductSection(
-                      products: products
-                          .where(
-                            (product) => product["collection"] == "Featured",
-                          )
-                          .toList(),
+                      products: _productService.filterProducts(
+                        products,
+                        collectionName: "Featured",
+                      ),
 
                       favoriteIds: favoriteIds,
 
-                      onFavorite: toggleFavorite,
+                      onFavorite: (product) => _favoriteService.toggleFavorite(
+                        userId: _authService.currentUser?.uid,
+                        product: product,
+                      ),
 
                       role: widget.role,
                     ),
@@ -260,15 +236,17 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 15),
 
                     CustomProductSection(
-                      products: products
-                          .where(
-                            (product) => product["collection"] == "Recommended",
-                          )
-                          .toList(),
+                      products: _productService.filterProducts(
+                        products,
+                        collectionName: "Recommended",
+                      ),
 
                       favoriteIds: favoriteIds,
 
-                      onFavorite: toggleFavorite,
+                      onFavorite: (product) => _favoriteService.toggleFavorite(
+                        userId: _authService.currentUser?.uid,
+                        product: product,
+                      ),
 
                       role: widget.role,
                     ),
@@ -285,16 +263,17 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 15),
 
                     CustomProductSection(
-                      products: products
-                          .where(
-                            (product) =>
-                                product["collection"] == "Top Collection",
-                          )
-                          .toList(),
+                      products: _productService.filterProducts(
+                        products,
+                        collectionName: "Top Collection",
+                      ),
 
                       favoriteIds: favoriteIds,
 
-                      onFavorite: toggleFavorite,
+                      onFavorite: (product) => _favoriteService.toggleFavorite(
+                        userId: _authService.currentUser?.uid,
+                        product: product,
+                      ),
 
                       role: widget.role,
                     ),

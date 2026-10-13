@@ -1,9 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecom_app/widgets/my_cartwidgets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/cart_service.dart';
+import 'package:ecom_app/services/order_service.dart';
+import 'package:ecom_app/services/user_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
+import 'package:ecom_app/widgets/custom_textfield.dart';
+import 'package:flutter/material.dart';
 
 class MyCartPage extends StatefulWidget {
   MyCartPage({super.key});
@@ -13,79 +17,20 @@ class MyCartPage extends StatefulWidget {
 }
 
 class _MyCartPageState extends State<MyCartPage> {
-  User? get user {
-    return FirebaseAuth.instance.currentUser;
-  }
-
-  CollectionReference? get cartCollection {
-    if (user == null) return null;
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("cart");
-  }
-
-  Stream<QuerySnapshot> getCart() {
-    final collection = cartCollection;
-    if (collection == null) {
-      return Stream.empty();
-    }
-
-    return collection.snapshots();
-  }
-
-  Future increaseQuantity(String productId, int quantity) async {
-    final collection = cartCollection;
-    if (collection == null) return;
-    await collection.doc(productId).update({"quantity": quantity + 1});
-  }
-
-  Future<void> decreaseQuantity(String productId, int quantity) async {
-    if (quantity <= 1) {
-      await removeFromCart(productId);
-      return;
-    }
-
-    final collection = cartCollection;
-    if (collection == null) return;
-    await collection.doc(productId).update({"quantity": quantity - 1});
-  }
-
-  Future removeFromCart(String productId) async {
-    final collection = cartCollection;
-    if (collection == null) return;
-    await collection.doc(productId).delete();
-  }
-
-  double getPrice(Map<String, dynamic> product) {
-    if (product["price"] is num) {
-      return (product["price"] as num).toDouble();
-    }
-
-    return 0;
-  }
-
-  int getQuantity(Map<String, dynamic> product) {
-    if (product["quantity"] is num) {
-      return (product["quantity"] as num).toInt();
-    }
-
-    return 1;
-  }
+  final AuthService _authService = AuthService();
+  final CartService _cartService = CartService();
+  final OrderService _orderService = OrderService();
+  final UserService _userService = UserService();
 
   Future<Map<String, String>?> _collectDeliveryDetails() async {
-    final currentUser = user;
+    final currentUser = _authService.currentUser;
     if (currentUser == null) {
       return null;
     }
 
     Map<String, dynamic> profile = {};
     try {
-      final profileSnapshot = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(currentUser.uid)
-          .get();
-      profile = profileSnapshot.data() ?? {};
+      profile = await _userService.getUserProfile(currentUser.uid);
     } catch (_) {}
 
     if (!mounted) {
@@ -140,12 +85,19 @@ class _MyCartPageState extends State<MyCartPage> {
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text("Cancel"),
+              CustomButton(
+                text: "Cancel",
+                onTap: () => Navigator.pop(dialogContext),
+                fitContent: true,
+                height: 40,
+                borderRadius: 8,
+                backgroundColor: Colors.transparent,
+                disabledBackgroundColor: Colors.transparent,
+                textColor: AppColors.primary,
               ),
-              TextButton(
-                onPressed: () {
+              CustomButton(
+                text: "Continue",
+                onTap: () {
                   if (formKey.currentState?.validate() != true) {
                     return;
                   }
@@ -156,7 +108,12 @@ class _MyCartPageState extends State<MyCartPage> {
                     "address": addressController.text.trim(),
                   });
                 },
-                child: Text("Continue"),
+                fitContent: true,
+                height: 40,
+                borderRadius: 8,
+                backgroundColor: Colors.transparent,
+                disabledBackgroundColor: Colors.transparent,
+                textColor: AppColors.primary,
               ),
             ],
           );
@@ -176,79 +133,34 @@ class _MyCartPageState extends State<MyCartPage> {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
-    return TextFormField(
+    return CustomTextField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      cursorColor: AppColors.primary,
-      style: TextStyle(color: AppColors.black, fontSize: 15),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: AppColors.grey),
-        floatingLabelStyle: TextStyle(color: AppColors.primary),
-        hintStyle: TextStyle(color: AppColors.grey),
-        prefixIcon: Icon(icon, color: AppColors.grey),
-        filled: true,
-        fillColor: AppColors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.2)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.2)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
+      labelText: label,
+      prefixIcon: icon,
+      fillColor: AppColors.white,
+      borderColor: AppColors.grey.withValues(alpha: 0.2),
+      focusedBorderColor: AppColors.primary,
+      borderRadius: 12,
       validator: (value) =>
           value == null || value.trim().isEmpty ? "Enter your $label" : null,
     );
   }
 
   Future<void> orderAllProducts(List<Map<String, dynamic>> products) async {
-    final currentUser = user;
-    if (currentUser == null || products.isEmpty) {
-      return;
-    }
-
     final deliveryDetails = await _collectDeliveryDetails();
     if (deliveryDetails == null) {
       return;
     }
 
     try {
-      for (final product in products) {
-        final price = getPrice(product);
-        final quantity = getQuantity(product);
-        final productId = (product["productId"] ?? product["documentId"] ?? "")
-            .toString();
+      final orderCreated = await _orderService.createOrdersFromCart(
+        products: products,
+        deliveryDetails: deliveryDetails,
+      );
 
-        await FirebaseFirestore.instance
-            .collection("users")
-            .doc(currentUser.uid)
-            .collection("orders")
-            .add({
-              "productId": productId,
-              "name": product["name"] ?? "",
-              "price": price,
-              "imageUrl": product["imageUrl"] ?? "",
-              "quantity": quantity,
-              "totalPrice": price * quantity,
-              "customerName": deliveryDetails["customerName"],
-              "phone": deliveryDetails["phone"],
-              "address": deliveryDetails["address"],
-              "email": currentUser.email ?? "",
-              "status": "Pending",
-              "createdAt": FieldValue.serverTimestamp(),
-            });
-
-        await cartCollection?.doc(productId).delete();
-      }
-
-      if (!mounted) {
+      if (!mounted || !orderCreated) {
         return;
       }
       ScaffoldMessenger.of(
@@ -266,19 +178,15 @@ class _MyCartPageState extends State<MyCartPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (user == null) {
+    if (_authService.currentUser == null) {
       return Scaffold(
         backgroundColor: AppColors.background,
-
         appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,
-
           title: Text("My Cart", style: AppTextStyles.title),
-
           centerTitle: true,
         ),
-
         body: Center(
           child: Text("Please login first", style: AppTextStyles.body),
         ),
@@ -287,27 +195,18 @@ class _MyCartPageState extends State<MyCartPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-
+          onPressed: () => Navigator.pop(context),
           icon: Icon(Icons.arrow_back, color: AppColors.black),
         ),
-
         title: Text("My Cart", style: AppTextStyles.title),
-
         centerTitle: true,
       ),
-
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getCart(),
-
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _cartService.watchCart(_authService.currentUser?.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -321,75 +220,262 @@ class _MyCartPageState extends State<MyCartPage> {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return CustomEmptyCart();
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.10),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 50,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Your Cart is Empty",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Products you add to cart will appear here",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: AppColors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
-          List<Map<String, dynamic>> cartItems = [];
-
-          for (var document in snapshot.data!.docs) {
-            Map<String, dynamic> product =
-                document.data() as Map<String, dynamic>;
-
-            product["documentId"] = document.id;
-
-            cartItems.add(product);
-          }
-
-          double grandTotal = 0;
-
-          for (var product in cartItems) {
-            double price = getPrice(product);
-            int quantity = getQuantity(product);
-
-            grandTotal += price * quantity;
-          }
+          final cartItems = snapshot.data!;
+          final grandTotal = _cartService.calculateTotal(cartItems);
 
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.all(16),
-
                   itemCount: cartItems.length,
-
                   itemBuilder: (context, index) {
-                    Map<String, dynamic> product = cartItems[index];
+                    final product = cartItems[index];
+                    final productId =
+                        (product["productId"] ?? product["documentId"] ?? "")
+                            .toString();
+                    final itemQuantity = _cartService.getItemQuantity(product);
+                    final itemPrice = _cartService.getItemPrice(product);
 
-                    String productId =
-                        product["productId"] ?? product["documentId"];
-
-                    return CustomCartItem(
-                      name: product["name"] ?? "No Name",
-
-                      imageUrl: product["imageUrl"] ?? "",
-
-                      price: getPrice(product),
-
-                      quantity: getQuantity(product),
-
-                      onIncrease: () {
-                        increaseQuantity(productId, getQuantity(product));
-                      },
-
-                      onDecrease: () {
-                        decreaseQuantity(productId, getQuantity(product));
-                      },
-
-                      onDelete: () {
-                        removeFromCart(productId);
-                      },
+                    return CustomCard(
+                      margin: EdgeInsets.only(bottom: 14),
+                      padding: EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 90,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child:
+                                  (product["imageUrl"] ?? "").toString().isEmpty
+                                  ? Icon(
+                                      Icons.image_outlined,
+                                      color: AppColors.grey,
+                                    )
+                                  : Image.network(
+                                      product["imageUrl"].toString(),
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Icon(
+                                              Icons.image_outlined,
+                                              color: AppColors.grey,
+                                            );
+                                          },
+                                    ),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product["name"] ?? "No Name",
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  "Rs. ${itemPrice.toStringAsFixed(0)}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () =>
+                                          _cartService.decrementQuantity(
+                                            userId:
+                                                _authService.currentUser?.uid,
+                                            productId: productId,
+                                            quantity: itemQuantity,
+                                          ),
+                                      child: Container(
+                                        height: 28,
+                                        width: 28,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          color: AppColors.background,
+                                        ),
+                                        child: Icon(
+                                          Icons.remove,
+                                          size: 16,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      itemQuantity.toString(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          _cartService.incrementQuantity(
+                                            userId:
+                                                _authService.currentUser?.uid,
+                                            productId: productId,
+                                            quantity: itemQuantity,
+                                          ),
+                                      child: Container(
+                                        height: 28,
+                                        width: 28,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          color: AppColors.primary,
+                                        ),
+                                        child: Icon(
+                                          Icons.add,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: () => _cartService.removeItem(
+                                  userId: _authService.currentUser?.uid,
+                                  productId: productId,
+                                ),
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: AppColors.red,
+                                ),
+                              ),
+                              Text(
+                                "Rs. ${(itemPrice * itemQuantity).toStringAsFixed(0)}",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
               ),
-
-              CustomCartBottom(
-                total: grandTotal,
-
-                onOrder: () {
-                  orderAllProducts(cartItems);
-                },
+              Container(
+                padding: EdgeInsets.fromLTRB(20, 15, 20, 20),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 15,
+                      offset: Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          "Rs. ${grandTotal.toStringAsFixed(0)}",
+                          style: TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 14),
+                    CustomButton(
+                      text: "Order Now",
+                      onTap: () => orderAllProducts(cartItems),
+                      height: 50,
+                      borderRadius: 15,
+                      textColor: Colors.white,
+                    ),
+                  ],
+                ),
               ),
             ],
           );

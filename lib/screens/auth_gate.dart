@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/navigation.dart';
 import 'package:ecom_app/screens/welcome_screen.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/user_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/widgets/custom_drwaer.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthGate extends StatefulWidget {
@@ -14,55 +14,15 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
   String? _startupUserId;
   Future<Map<String, dynamic>>? _startupFuture;
-
-  Future<Map<String, dynamic>> _fetchUserData(User user) async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.uid)
-          .get();
-
-      if (doc.exists && doc.data() != null) {
-        final data = doc.data()!;
-        final String name = data["name"] ?? user.displayName ?? "User";
-        final String email = data["email"] ?? user.email ?? "";
-        final storedRole = (data["role"] ?? "user")
-            .toString()
-            .trim()
-            .toLowerCase();
-        final String role = storedRole == "admin" ? "admin" : "user";
-
-        UserData.name = name;
-        UserData.email = email;
-        UserData.role = role;
-
-        return {"role": role, "name": name, "email": email};
-      }
-    } catch (e) {
-      debugPrint("Error fetching user data in AuthGate: $e");
-    }
-    final String fallbackName = user.displayName ?? "User";
-    final String fallbackEmail = user.email ?? "";
-    String fallbackRole = "user";
-
-    UserData.name = fallbackName;
-    UserData.email = fallbackEmail;
-    UserData.role = fallbackRole;
-
-    return {"role": fallbackRole, "name": fallbackName, "email": fallbackEmail};
-  }
-
-  Future<Map<String, dynamic>> _prepareAuthenticatedHome(User user) async {
-    await Future<void>.delayed(Duration(milliseconds: 1100));
-    return _fetchUserData(user);
-  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: _authService.authStateChanges(),
       builder: (context, authSnapshot) {
         if (authSnapshot.connectionState == ConnectionState.waiting) {
           return _buildSplashScreen(context);
@@ -72,7 +32,7 @@ class _AuthGateState extends State<AuthGate> {
           final user = authSnapshot.data!;
           if (_startupUserId != user.uid) {
             _startupUserId = user.uid;
-            _startupFuture = _prepareAuthenticatedHome(user);
+            _startupFuture = _userService.prepareUserSession(user);
           }
 
           return FutureBuilder<Map<String, dynamic>>(
@@ -82,8 +42,11 @@ class _AuthGateState extends State<AuthGate> {
                 return _buildSplashScreen(context);
               }
 
-              final String role = userSnapshot.data?["role"] ?? "user";
-              return MainNavigation(role: role);
+              final profile = userSnapshot.data ?? {};
+              UserData.name = (profile["name"] ?? "").toString();
+              UserData.email = (profile["email"] ?? "").toString();
+              UserData.role = (profile["role"] ?? "user").toString();
+              return MainNavigation(role: UserData.role);
             },
           );
         }

@@ -1,6 +1,6 @@
-import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/screens/product_detail.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
-import 'package:ecom_app/widgets/custom_productcard.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 
 class CustomProductSection extends StatelessWidget {
@@ -20,13 +20,10 @@ class CustomProductSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) {
-      return Container(
+      return CustomCard(
         height: 120,
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        radius: 12,
         child: Center(
           child: Text(
             "No products in this collection",
@@ -48,13 +45,27 @@ class CustomProductSection extends StatelessWidget {
         itemBuilder: (context, index) {
           Map<String, dynamic> product = products[index];
 
-          return CustomProductCard(
+          final isFavorite = favoriteIds.contains(product["id"]);
+
+          return CustomCard.product(
             product: product,
-            isFavorite: favoriteIds.contains(product["id"]),
-            onFavorite: () {
-              onFavorite(product);
+            isFavorite: isFavorite,
+            onFavorite: () => onFavorite(product),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailPage(
+                    product: product,
+                    isFavorite: isFavorite,
+                    onFavorite: () => onFavorite(product),
+                    role: role,
+                  ),
+                ),
+              );
             },
-            role: role,
+            width: 170,
+            margin: EdgeInsets.only(right: 14),
           );
         },
       ),

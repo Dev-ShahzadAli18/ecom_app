@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/add_product.dart';
 import 'package:ecom_app/screens/order.dart';
+import 'package:ecom_app/services/cart_service.dart';
+import 'package:ecom_app/services/product_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/productdetailwidget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -26,6 +27,8 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  final CartService _cartService = CartService();
+  final ProductService _productService = ProductService();
   bool isDeleting = false;
   bool isAddingToCart = false;
 
@@ -50,24 +53,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
-  Future deleteProduct() async {
-    String productId = widget.product["id"] ?? "";
-
-    if (productId.isEmpty) {
-      return;
-    }
-
+  Future<void> _handleDeleteProduct() async {
     try {
       setState(() {
         isDeleting = true;
       });
 
-      await FirebaseFirestore.instance
-          .collection("products")
-          .doc(productId)
-          .delete();
+      final deleted = await _productService.deleteProduct(
+        widget.product["id"]?.toString(),
+      );
 
-      if (!mounted) {
+      if (!mounted || !deleted) {
         return;
       }
 
@@ -96,18 +92,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             style: AppTextStyles.body,
           ),
           actions: [
-            TextButton(
-              onPressed: () {
+            CustomButton(
+              text: "Cancel",
+              fitContent: true,
+              height: 40,
+              borderRadius: 8,
+              backgroundColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              textColor: AppColors.primary,
+              onTap: () {
                 Navigator.pop(dialogContext);
               },
-              child: Text("Cancel"),
             ),
-            TextButton(
-              onPressed: () {
+            CustomButton(
+              text: "Delete",
+              fitContent: true,
+              height: 40,
+              borderRadius: 8,
+              backgroundColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              textColor: Colors.red,
+              onTap: () {
                 Navigator.pop(dialogContext);
-                deleteProduct();
+                _handleDeleteProduct();
               },
-              child: Text("Delete", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -115,53 +123,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Future<void> addToCart() async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      showMessage("Please login first");
-      return;
-    }
-
-    String productId = widget.product["id"] ?? "";
-
-    if (productId.isEmpty) {
-      return;
-    }
-
+  Future<void> _handleAddToCart() async {
     try {
       setState(() {
         isAddingToCart = true;
       });
 
-      DocumentReference cartRef = FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.uid)
-          .collection("cart")
-          .doc(productId);
-
-      DocumentSnapshot cartItem = await cartRef.get();
-
-      if (cartItem.exists) {
-        int quantity = 1;
-
-        Map<String, dynamic> data = cartItem.data() as Map<String, dynamic>;
-
-        if (data["quantity"] is num) {
-          quantity = (data["quantity"] as num).toInt();
-        }
-
-        await cartRef.update({"quantity": quantity + 1});
-      } else {
-        await cartRef.set({
-          "productId": productId,
-          "name": widget.product["name"] ?? "",
-          "price": widget.product["price"] ?? 0,
-          "imageUrl": widget.product["imageUrl"] ?? "",
-          "quantity": 1,
-          "addedAt": FieldValue.serverTimestamp(),
-        });
-      }
+      final result = await _cartService.addProduct(product: widget.product);
 
       if (!mounted) {
         return;
@@ -171,7 +139,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         isAddingToCart = false;
       });
 
-      showMessage("Product added to cart");
+      if (result == AddToCartResult.requiresLogin) {
+        showMessage("Please login first");
+      } else if (result == AddToCartResult.added) {
+        showMessage("Product added to cart");
+      }
     } catch (e) {
       if (!mounted) {
         return;
@@ -282,23 +254,63 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
             // Seller / Admin Management Actions
             if (canManage) ...[
-              CustomAdminButtons(
-                onUpdate: editProduct,
-                onDelete: showDeleteDialog,
-                isDeleting: isDeleting,
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: "Edit / Update",
+                      icon: Icons.edit_outlined,
+                      onTap: editProduct,
+                      height: 52,
+                      borderRadius: 12,
+                      backgroundColor: AppColors.white,
+                      textColor: AppColors.primary,
+                      side: BorderSide(color: AppColors.primary),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: CustomButton(
+                      text: isDeleting ? "Deleting..." : "Delete",
+                      icon: Icons.delete_outline,
+                      onTap: isDeleting ? null : showDeleteDialog,
+                      height: 52,
+                      borderRadius: 12,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      enabled: !isDeleting,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 14),
             ],
 
             // Cart and order actions are only available to buyers.
-            if (normalizedRole == "user")
-              CustomUserButtons(
-                onAddToCart: addToCart,
-                onOrderNow: openOrderPage,
-                isAddingToCart: isAddingToCart,
-                isOrdering: false,
-                orderAvailable: orderAvailable,
+            if (normalizedRole == "user") ...[
+              CustomButton(
+                text: isAddingToCart ? "Adding to Cart..." : "Add to Cart",
+                icon: Icons.shopping_cart_outlined,
+                onTap: isAddingToCart ? null : _handleAddToCart,
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: AppColors.white,
+                textColor: AppColors.primary,
+                side: BorderSide(color: AppColors.primary),
+                enabled: !isAddingToCart,
               ),
+              SizedBox(height: 12),
+              CustomButton(
+                text: "Order Now",
+                icon: Icons.shopping_bag_outlined,
+                onTap: orderAvailable ? openOrderPage : null,
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: AppColors.primary,
+                textColor: Colors.black,
+                enabled: orderAvailable,
+              ),
+            ],
           ],
         ),
       ),

@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/login_screen.dart';
 import 'package:ecom_app/screens/profile_details.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/user_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
 import 'package:ecom_app/widgets/listtile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -16,10 +16,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? get user => FirebaseAuth.instance.currentUser;
+  final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
 
   @override
   Widget build(BuildContext context) {
+    final user = _authService.currentUser;
     final mediaQuery = MediaQuery.of(context);
     final double screenWidth = mediaQuery.size.width;
     final double horizontalPadding = (screenWidth * 0.05).clamp(14.0, 24.0);
@@ -64,11 +66,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection("users")
-            .doc(user!.uid)
-            .snapshots(),
+      body: StreamBuilder<Map<String, dynamic>?>(
+        stream: _userService.watchUserProfile(user.uid),
         builder: (context, snp) {
           if (snp.connectionState == ConnectionState.waiting) {
             return Center(
@@ -76,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
 
-          if (!snp.hasData || !snp.data!.exists) {
+          if (!snp.hasData || snp.data == null) {
             return Center(
               child: Text(
                 "No profile data found",
@@ -85,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
 
-          final data = snp.data!.data() as Map<String, dynamic>? ?? {};
+          final data = snp.data!;
           final String role = (data["role"] ?? "user").toString().toUpperCase();
 
           final profileData = [
@@ -96,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
             },
             {
               "title": "Email",
-              "value": data["email"] ?? user?.email ?? "",
+              "value": data["email"] ?? user.email ?? "",
               "icon": Icons.email_outlined,
             },
 

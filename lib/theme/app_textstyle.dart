@@ -10,13 +10,15 @@ class AppTextStyles {
     );
   }
 
-  static TextStyle get title {
+  static TextStyle get ssstitle {
     return TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w600,
       color: AppColors.black,
     );
   }
+
+  static TextStyle get title => ssstitle;
 
   static TextStyle get body {
     return TextStyle(fontSize: 15, color: AppColors.grey);

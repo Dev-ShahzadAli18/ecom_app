@@ -1,10 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:ecom_app/widgets/custom_allproductcard.dart';
+import 'package:ecom_app/screens/product_detail.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/favorite_service.dart';
+import 'package:ecom_app/services/product_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
 
 class AllProductsPage extends StatefulWidget {
   final String collectionName;
@@ -23,50 +25,9 @@ class AllProductsPage extends StatefulWidget {
 }
 
 class _AllProductsPageState extends State<AllProductsPage> {
-  Stream<QuerySnapshot> getProducts() {
-    return FirebaseFirestore.instance
-        .collection("products")
-        .orderBy("createdAt", descending: true)
-        .snapshots();
-  }
-
-  Stream<QuerySnapshot> getFavorites() {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .snapshots();
-  }
-
-  Future toggleFavorite(Map<String, dynamic> product) async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return;
-    }
-
-    String productId = product["id"];
-
-    DocumentReference favoriteRef = FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .doc(productId);
-
-    DocumentSnapshot favorite = await favoriteRef.get();
-
-    if (favorite.exists) {
-      await favoriteRef.delete();
-    } else {
-      await favoriteRef.set(product);
-    }
-  }
+  final ProductService _productService = ProductService();
+  final FavoriteService _favoriteService = FavoriteService();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +50,8 @@ class _AllProductsPageState extends State<AllProductsPage> {
         centerTitle: true,
       ),
 
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getProducts(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _productService.watchProducts(),
 
         builder: (context, productSnapshot) {
           if (productSnapshot.connectionState == ConnectionState.waiting) {
@@ -105,35 +66,17 @@ class _AllProductsPageState extends State<AllProductsPage> {
             );
           }
 
-          if (!productSnapshot.hasData || productSnapshot.data!.docs.isEmpty) {
+          if (!productSnapshot.hasData || productSnapshot.data!.isEmpty) {
             return Center(
               child: Text("No products available", style: AppTextStyles.body),
             );
           }
 
-          List<Map<String, dynamic>> products = [];
-
-          for (var document in productSnapshot.data!.docs) {
-            Map<String, dynamic> product =
-                document.data() as Map<String, dynamic>;
-
-            product["id"] = document.id;
-
-            String productCollection = product["collection"] ?? "";
-
-            String productCategory = product["category"] ?? "";
-
-            bool collectionMatch =
-                widget.collectionName == "All" ||
-                productCollection == widget.collectionName;
-
-            bool categoryMatch =
-                widget.category == "All" || productCategory == widget.category;
-
-            if (collectionMatch && categoryMatch) {
-              products.add(product);
-            }
-          }
+          final products = _productService.filterProducts(
+            productSnapshot.data!,
+            collectionName: widget.collectionName,
+            category: widget.category,
+          );
 
           if (products.isEmpty) {
             return Center(
@@ -164,8 +107,10 @@ class _AllProductsPageState extends State<AllProductsPage> {
             );
           }
 
-          return StreamBuilder<QuerySnapshot>(
-            stream: getFavorites(),
+          return StreamBuilder<Set<String>>(
+            stream: _favoriteService.watchFavoriteIds(
+              _authService.currentUser?.uid,
+            ),
 
             builder: (context, favoriteSnapshot) {
               if (favoriteSnapshot.connectionState == ConnectionState.waiting) {
@@ -174,13 +119,7 @@ class _AllProductsPageState extends State<AllProductsPage> {
                 );
               }
 
-              Set<String> favoriteIds = {};
-
-              if (favoriteSnapshot.hasData) {
-                for (var document in favoriteSnapshot.data!.docs) {
-                  favoriteIds.add(document.id);
-                }
-              }
+              final favoriteIds = favoriteSnapshot.data ?? <String>{};
 
               final mediaQuery = MediaQuery.of(context);
               final double screenWidth = mediaQuery.size.width;
@@ -204,15 +143,31 @@ class _AllProductsPageState extends State<AllProductsPage> {
 
                   String productId = product["id"];
 
-                  return AllProductsCard(
+                  final isFavorite = favoriteIds.contains(productId);
+
+                  return CustomCard.product(
                     product: product,
-                    isFavorite: favoriteIds.contains(productId),
-
-                    onFavorite: () {
-                      toggleFavorite(product);
+                    isFavorite: isFavorite,
+                    onFavorite: () => _favoriteService.toggleFavorite(
+                      userId: _authService.currentUser?.uid,
+                      product: product,
+                    ),
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            product: product,
+                            isFavorite: isFavorite,
+                            onFavorite: () => _favoriteService.toggleFavorite(
+                              userId: _authService.currentUser?.uid,
+                              product: product,
+                            ),
+                            role: widget.role,
+                          ),
+                        ),
+                      );
                     },
-
-                    role: widget.role,
                   );
                 },
               );

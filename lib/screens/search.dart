@@ -1,10 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'package:ecom_app/screens/product_detail.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/favorite_service.dart';
+import 'package:ecom_app/services/product_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
-import 'package:ecom_app/widgets/custom_allproductcard.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
+import 'package:ecom_app/widgets/custom_textfield.dart';
 
 class SearchPage extends StatefulWidget {
   final String role;
@@ -16,53 +19,15 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final ProductService _productService = ProductService();
+  final FavoriteService _favoriteService = FavoriteService();
+  final AuthService _authService = AuthService();
   final TextEditingController searchController = TextEditingController();
 
   @override
   void dispose() {
     searchController.dispose();
     super.dispose();
-  }
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getProducts() {
-    return FirebaseFirestore.instance
-        .collection("products")
-        .orderBy("createdAt", descending: true)
-        .snapshots();
-  }
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getFavorites() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .snapshots();
-  }
-
-  Future<void> toggleFavorite(Map<String, dynamic> product) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-
-    final productId = product["id"] as String;
-    final favoriteRef = FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .doc(productId);
-    final favorite = await favoriteRef.get();
-
-    if (favorite.exists) {
-      await favoriteRef.delete();
-    } else {
-      await favoriteRef.set(product);
-    }
   }
 
   @override
@@ -83,35 +48,31 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(padding, 4, padding, 12),
-            child: TextField(
+            child: CustomTextField(
               controller: searchController,
               onChanged: (_) => setState(() {}),
               textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: "Search products",
-                prefixIcon: Icon(Icons.search),
-                suffixIcon: searchController.text.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: "Clear search",
-                        onPressed: () {
-                          searchController.clear();
-                          setState(() {});
-                        },
-                        icon: Icon(Icons.close),
-                      ),
-                filled: true,
-                fillColor: AppColors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
+              hintText: "Search products",
+              prefixIcon: Icons.search,
+              suffixIcon: searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: "Clear search",
+                      onPressed: () {
+                        searchController.clear();
+                        setState(() {});
+                      },
+                      icon: Icon(Icons.close),
+                    ),
+              fillColor: AppColors.white,
+              borderColor: Colors.transparent,
+              focusedBorderColor: AppColors.primary,
+              borderRadius: 12,
             ),
           ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: getProducts(),
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _productService.watchProducts(),
               builder: (context, productSnapshot) {
                 if (productSnapshot.connectionState ==
                     ConnectionState.waiting) {
@@ -130,25 +91,10 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 final query = searchController.text.trim().toLowerCase();
-                final products =
-                    productSnapshot.data?.docs
-                        .map(
-                          (document) => {...document.data(), "id": document.id},
-                        )
-                        .where((product) {
-                          if (query.isEmpty) {
-                            return true;
-                          }
-
-                          final searchableText = [
-                            product["name"],
-                            product["description"],
-                            product["category"],
-                          ].whereType<String>().join(" ").toLowerCase();
-                          return searchableText.contains(query);
-                        })
-                        .toList() ??
-                    <Map<String, dynamic>>[];
+                final products = _productService.searchProducts(
+                  productSnapshot.data ?? <Map<String, dynamic>>[],
+                  query,
+                );
 
                 if (products.isEmpty) {
                   return Center(
@@ -161,14 +107,12 @@ class _SearchPageState extends State<SearchPage> {
                   );
                 }
 
-                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: getFavorites(),
+                return StreamBuilder<Set<String>>(
+                  stream: _favoriteService.watchFavoriteIds(
+                    _authService.currentUser?.uid,
+                  ),
                   builder: (context, favoriteSnapshot) {
-                    final favoriteIds =
-                        favoriteSnapshot.data?.docs
-                            .map((document) => document.id)
-                            .toSet() ??
-                        <String>{};
+                    final favoriteIds = favoriteSnapshot.data ?? <String>{};
 
                     return GridView.builder(
                       padding: EdgeInsets.all(padding),
@@ -184,11 +128,32 @@ class _SearchPageState extends State<SearchPage> {
                         final product = products[index];
                         final productId = product["id"] as String;
 
-                        return AllProductsCard(
+                        final isFavorite = favoriteIds.contains(productId);
+
+                        return CustomCard.product(
                           product: product,
-                          isFavorite: favoriteIds.contains(productId),
-                          onFavorite: () => toggleFavorite(product),
-                          role: widget.role,
+                          isFavorite: isFavorite,
+                          onFavorite: () => _favoriteService.toggleFavorite(
+                            userId: _authService.currentUser?.uid,
+                            product: product,
+                          ),
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailPage(
+                                  product: product,
+                                  isFavorite: isFavorite,
+                                  onFavorite: () =>
+                                      _favoriteService.toggleFavorite(
+                                        userId: _authService.currentUser?.uid,
+                                        product: product,
+                                      ),
+                                  role: widget.role,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
