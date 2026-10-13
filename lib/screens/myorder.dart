@@ -1,92 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecom_app/widgets/customorderwidget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/order_service.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 
 class MyOrdersPage extends StatelessWidget {
+  final AuthService _authService = AuthService();
+  final OrderService _orderService = OrderService();
+
   MyOrdersPage({super.key});
-
-  User? get user {
-    return FirebaseAuth.instance.currentUser;
-  }
-
-  Stream<QuerySnapshot> getOrders() {
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("orders")
-        .orderBy("createdAt", descending: true)
-        .snapshots();
-  }
-
-  double getPrice(Map<String, dynamic> data) {
-    if (data["price"] is num) {
-      return (data["price"] as num).toDouble();
-    }
-
-    return 0;
-  }
-
-  double getTotalPrice(Map<String, dynamic> data) {
-    if (data["totalPrice"] is num) {
-      return (data["totalPrice"] as num).toDouble();
-    }
-
-    double price = getPrice(data);
-
-    int quantity = 1;
-
-    if (data["quantity"] is num) {
-      quantity = (data["quantity"] as num).toInt();
-    }
-
-    return price * quantity;
-  }
-
-  int getQuantity(Map<String, dynamic> data) {
-    if (data["quantity"] is num) {
-      return (data["quantity"] as num).toInt();
-    }
-
-    return 1;
-  }
-
-  String getDate(Map<String, dynamic> data) {
-    Timestamp? timestamp;
-
-    if (data["createdAt"] is Timestamp) {
-      timestamp = data["createdAt"];
-    }
-
-    if (timestamp == null) {
-      return "Date not available";
-    }
-
-    DateTime date = timestamp.toDate();
-
-    String day = date.day.toString().padLeft(2, "0");
-
-    String month = date.month.toString().padLeft(2, "0");
-
-    String year = date.year.toString();
-
-    String hour = date.hour.toString().padLeft(2, "0");
-
-    String minute = date.minute.toString().padLeft(2, "0");
-
-    return "$day/$month/$year  $hour:$minute";
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (user == null) {
+    final currentUser = _authService.currentUser;
+    if (currentUser == null) {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
@@ -115,8 +44,8 @@ class MyOrdersPage extends StatelessWidget {
         title: Text("My Orders", style: AppTextStyles.title),
         centerTitle: true,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getOrders(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _orderService.watchUserOrders(currentUser.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -130,8 +59,45 @@ class MyOrdersPage extends StatelessWidget {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return CustomEmptyOrders();
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.10),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.receipt_long_outlined,
+                        size: 50,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "No Orders Yet",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Your placed orders will appear here",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: AppColors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           final double padding = (MediaQuery.of(context).size.width * 0.045)
@@ -140,31 +106,187 @@ class MyOrdersPage extends StatelessWidget {
           return ListView.builder(
             padding: EdgeInsets.all(padding),
             physics: BouncingScrollPhysics(),
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              DocumentSnapshot document = snapshot.data!.docs[index];
+              final order = snapshot.data![index];
 
-              Map<String, dynamic> order =
-                  document.data() as Map<String, dynamic>;
+              final status = order["status"] ?? "Pending";
+              final statusColor = status.toLowerCase() == "pending"
+                  ? Colors.orange
+                  : status.toLowerCase() == "confirmed"
+                  ? Colors.blue
+                  : status.toLowerCase() == "delivered"
+                  ? Colors.green
+                  : status.toLowerCase() == "cancelled"
+                  ? Colors.red
+                  : AppColors.grey;
 
-              return CustomMyOrderCard(
-                name: order["name"] ?? "No Name",
-
-                imageUrl: order["imageUrl"] ?? "",
-
-                price: getPrice(order),
-
-                totalPrice: getTotalPrice(order),
-
-                quantity: getQuantity(order),
-
-                color: order["color"] ?? "",
-
-                status: order["status"] ?? "Pending",
-
-                address: order["address"] ?? "",
-
-                date: getDate(order),
+              return CustomCard(
+                margin: EdgeInsets.only(bottom: 14),
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 85,
+                          width: 75,
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: (order["imageUrl"] ?? "").toString().isEmpty
+                                ? Icon(
+                                    Icons.image_outlined,
+                                    color: AppColors.grey,
+                                  )
+                                : Image.network(
+                                    (order["imageUrl"] ?? "").toString(),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.image_outlined,
+                                        color: AppColors.grey,
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                order["name"] ?? "No Name",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "Rs. ${_orderService.getPrice(order).toStringAsFixed(0)}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "Quantity: ${_orderService.getQuantity(order)}",
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            status,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: statusColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Divider(color: AppColors.grey.withValues(alpha: 0.12)),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.palette_outlined,
+                          size: 17,
+                          color: AppColors.grey,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          "Color: ",
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                        Text(
+                          (order["color"] ?? "").toString().isEmpty
+                              ? "Not selected"
+                              : (order["color"] ?? "").toString(),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 17,
+                          color: AppColors.grey,
+                        ),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            (order["address"] ?? "").toString().isEmpty
+                                ? "No address"
+                                : (order["address"] ?? "").toString(),
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _orderService.formatDate(order["createdAt"]),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                        Text(
+                          "Total: Rs. ${_orderService.getTotalPrice(order).toStringAsFixed(0)}",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             },
           );

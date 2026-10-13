@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/services/user_service.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
-import 'package:ecom_app/widgets/custom_iconbutton.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfileDetail extends StatefulWidget {
@@ -18,6 +16,7 @@ class ProfileDetail extends StatefulWidget {
 }
 
 class _ProfileDetailState extends State<ProfileDetail> {
+  final UserService _userService = UserService();
   late final TextEditingController editcontroller;
 
   bool isLoading = false;
@@ -47,26 +46,14 @@ class _ProfileDetailState extends State<ProfileDetail> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      await _userService.updateProfileValue(
+        label: widget.title,
+        value: editcontroller.text.trim(),
+      );
 
-      if (user == null) {
-        throw Exception("User not logged in");
+      if (!mounted) {
+        return;
       }
-
-      String fieldKey = "name";
-      if (widget.title.toLowerCase() == "email") {
-        fieldKey = "email";
-      } else if (widget.title.toLowerCase() == "phone") {
-        fieldKey = "Phone Number";
-      } else if (widget.title.toLowerCase() == "gender") {
-        fieldKey = "gender";
-      }
-
-      await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
-        fieldKey: editcontroller.text.trim(),
-      }, SetOptions(merge: true));
-
-      if (!mounted) return;
 
       setState(() {
         isLoading = false;
@@ -112,9 +99,23 @@ class _ProfileDetailState extends State<ProfileDetail> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         actions: [
-          CustomIconButton(
-            onTap: isLoading ? null : updateData,
-            icon: Icons.check,
+          CustomButton(
+            text: "",
+            onTap: updateData,
+            enabled: !isLoading,
+            width: 45,
+            height: 45,
+            borderRadius: 14,
+            padding: EdgeInsets.zero,
+            backgroundColor: AppColors.isDark
+                ? Color(0xff2C2C2C)
+                : Color(0xffF5F5F5),
+            disabledBackgroundColor: AppColors.isDark
+                ? Color(0xff2C2C2C)
+                : Color(0xffF5F5F5),
+            textColor: AppColors.black,
+            disabledTextColor: AppColors.black,
+            child: Icon(Icons.check, size: 22, color: AppColors.black),
           ),
           SizedBox(width: 10),
         ],

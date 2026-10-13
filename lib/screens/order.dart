@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/order_service.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_orderwodget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ecom_app/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ecom_app/theme/app_colors.dart';
@@ -18,6 +19,8 @@ class OrderNowPage extends StatefulWidget {
 }
 
 class _OrderNowPageState extends State<OrderNowPage> {
+  final AuthService _authService = AuthService();
+  final OrderService _orderService = OrderService();
   final TextEditingController nameController = TextEditingController();
 
   final TextEditingController phoneController = TextEditingController();
@@ -42,18 +45,15 @@ class _OrderNowPageState extends State<OrderNowPage> {
     "Purple",
   ];
 
-  User? get user {
-    return FirebaseAuth.instance.currentUser;
-  }
-
   @override
   void initState() {
     super.initState();
 
     quantity = widget.initialQuantity;
 
-    if (user != null) {
-      nameController.text = user!.displayName ?? "";
+    final currentUser = _authService.currentUser;
+    if (currentUser != null) {
+      nameController.text = currentUser.displayName ?? "";
     }
   }
 
@@ -66,23 +66,7 @@ class _OrderNowPageState extends State<OrderNowPage> {
     super.dispose();
   }
 
-  double getPrice() {
-    if (widget.product["price"] is num) {
-      return (widget.product["price"] as num).toDouble();
-    }
-
-    return 0;
-  }
-
-  double getTotal() {
-    return getPrice() * quantity;
-  }
-
   Future placeOrder() async {
-    if (user == null) {
-      return;
-    }
-
     String name = nameController.text.trim();
     String phone = phoneController.text.trim();
     String address = addressController.text.trim();
@@ -112,31 +96,16 @@ class _OrderNowPageState extends State<OrderNowPage> {
         isOrdering = true;
       });
 
-      String productId = widget.product["id"] ?? "";
+      final orderCreated = await _orderService.createOrder(
+        product: widget.product,
+        quantity: quantity,
+        color: selectedColor,
+        customerName: name,
+        phone: phone,
+        address: address,
+      );
 
-      double price = getPrice();
-      double totalPrice = getTotal();
-
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user!.uid)
-          .collection("orders")
-          .add({
-            "productId": productId,
-            "name": widget.product["name"] ?? "",
-            "price": price,
-            "imageUrl": widget.product["imageUrl"] ?? "",
-            "quantity": quantity,
-            "totalPrice": totalPrice,
-            "color": selectedColor,
-            "customerName": name,
-            "phone": phone,
-            "address": address,
-            "status": "Pending",
-            "createdAt": FieldValue.serverTimestamp(),
-          });
-
-      if (!mounted) {
+      if (!mounted || !orderCreated) {
         return;
       }
 
@@ -168,8 +137,8 @@ class _OrderNowPageState extends State<OrderNowPage> {
 
   @override
   Widget build(BuildContext context) {
-    double price = getPrice();
-    double total = getTotal();
+    final price = _orderService.getPrice(widget.product);
+    final total = _orderService.getProductTotal(widget.product, quantity);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -263,28 +232,34 @@ class _OrderNowPageState extends State<OrderNowPage> {
 
             SizedBox(height: 12),
 
-            CustomOrderTextField(
+            CustomTextField(
               controller: nameController,
               labelText: "Full Name",
               hintText: "Enter your name",
+              fillColor: AppColors.white,
+              borderColor: AppColors.grey.withValues(alpha: 0.15),
             ),
 
             SizedBox(height: 12),
 
-            CustomOrderTextField(
+            CustomTextField(
               controller: phoneController,
               labelText: "Phone Number",
               hintText: "03XX XXXXXXX",
               keyboardType: TextInputType.phone,
+              fillColor: AppColors.white,
+              borderColor: AppColors.grey.withValues(alpha: 0.15),
             ),
 
             SizedBox(height: 12),
 
-            CustomOrderTextField(
+            CustomTextField(
               controller: addressController,
               labelText: "Delivery Address",
               hintText: "Enter your complete address",
               maxLines: 3,
+              fillColor: AppColors.white,
+              borderColor: AppColors.grey.withValues(alpha: 0.15),
             ),
 
             SizedBox(height: 25),

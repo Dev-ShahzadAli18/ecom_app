@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_app/services/order_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
@@ -8,28 +8,9 @@ import 'package:flutter/material.dart';
 
 class AdminOrdersPage extends StatelessWidget {
   final String role;
+  final OrderService _orderService = OrderService();
 
   AdminOrdersPage({super.key, required this.role});
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getOrders() {
-    return FirebaseFirestore.instance
-        .collectionGroup("orders")
-        .orderBy("createdAt", descending: true)
-        .snapshots();
-  }
-
-  String _formatDate(dynamic value) {
-    if (value is! Timestamp) {
-      return "Date pending";
-    }
-
-    final date = value.toDate();
-    final day = date.day.toString().padLeft(2, "0");
-    final month = date.month.toString().padLeft(2, "0");
-    final hour = date.hour.toString().padLeft(2, "0");
-    final minute = date.minute.toString().padLeft(2, "0");
-    return "$day/$month/${date.year} $hour:$minute";
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +44,8 @@ class AdminOrdersPage extends StatelessWidget {
         title: Text("Customer Orders", style: AppTextStyles.title),
         centerTitle: true,
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: getOrders(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _orderService.watchAllOrders(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -86,7 +67,7 @@ class AdminOrdersPage extends StatelessWidget {
             );
           }
 
-          final orders = snapshot.data?.docs ?? [];
+          final orders = snapshot.data ?? [];
           if (orders.isEmpty) {
             return Center(
               child: Text("No customer orders yet", style: AppTextStyles.body),
@@ -99,21 +80,14 @@ class AdminOrdersPage extends StatelessWidget {
             itemCount: orders.length,
             separatorBuilder: (context, index) => SizedBox(height: 10),
             itemBuilder: (context, index) {
-              final document = orders[index];
-              final order = document.data();
-              final buyerId = document.reference.parent.parent?.id ?? "";
+              final order = orders[index];
+              final buyerId = (order["buyerId"] ?? "").toString();
               final productName = (order["name"] ?? "Order item").toString();
               final customerName = (order["customerName"] ?? "Customer")
                   .toString();
               final status = (order["status"] ?? "Pending").toString();
-              final quantity = order["quantity"] is num
-                  ? (order["quantity"] as num).toInt()
-                  : 1;
-              final total = order["totalPrice"] is num
-                  ? (order["totalPrice"] as num).toDouble()
-                  : (order["price"] is num
-                        ? (order["price"] as num).toDouble() * quantity
-                        : 0.0);
+              final quantity = _orderService.getQuantity(order);
+              final total = _orderService.getTotalPrice(order);
 
               return CustomContainer(
                 padding: EdgeInsets.all(14),
@@ -123,7 +97,7 @@ class AdminOrdersPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => AdminOrderDetailsPage(
-                        orderId: document.id,
+                        orderId: order["orderId"].toString(),
                         buyerId: buyerId,
                         order: order,
                       ),
@@ -175,7 +149,7 @@ class AdminOrdersPage extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            "Rs. ${total.toStringAsFixed(0)} · ${_formatDate(order["createdAt"])}",
+                            "Rs. ${total.toStringAsFixed(0)} · ${_orderService.formatDate(order["createdAt"], fallback: "Date pending")}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.body.copyWith(fontSize: 12),

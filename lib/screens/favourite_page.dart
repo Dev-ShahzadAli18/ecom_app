@@ -1,44 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ecom_app/screens/product_detail.dart';
 import 'package:flutter/material.dart';
 
-import 'package:ecom_app/widgets/custom_allproductcard.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/services/auth_service.dart';
+import 'package:ecom_app/services/favorite_service.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
 
 class FavouritePage extends StatelessWidget {
   final String role;
+  final FavoriteService _favoriteService = FavoriteService();
+  final AuthService _authService = AuthService();
 
   FavouritePage({super.key, required this.role});
-
-  Stream<QuerySnapshot> getFavorites() {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .snapshots();
-  }
-
-  Future removeFavorite(String productId) async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return;
-    }
-
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .collection("favorites")
-        .doc(productId)
-        .delete();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +26,10 @@ class FavouritePage extends StatelessWidget {
         centerTitle: true,
       ),
 
-      body: StreamBuilder<QuerySnapshot>(
-        stream: getFavorites(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _favoriteService.watchFavoriteProducts(
+          _authService.currentUser?.uid,
+        ),
 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -68,7 +44,7 @@ class FavouritePage extends StatelessWidget {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -91,16 +67,7 @@ class FavouritePage extends StatelessWidget {
             );
           }
 
-          List<Map<String, dynamic>> favorites = [];
-
-          for (var document in snapshot.data!.docs) {
-            Map<String, dynamic> product =
-                document.data() as Map<String, dynamic>;
-
-            product["id"] = document.id;
-
-            favorites.add(product);
-          }
+          final favorites = snapshot.data!;
 
           final mediaQuery = MediaQuery.of(context);
           final double screenWidth = mediaQuery.size.width;
@@ -122,15 +89,29 @@ class FavouritePage extends StatelessWidget {
             itemBuilder: (context, index) {
               Map<String, dynamic> product = favorites[index];
 
-              return AllProductsCard(
+              return CustomCard.product(
                 product: product,
                 isFavorite: true,
-
-                onFavorite: () {
-                  removeFavorite(product["id"]);
+                onFavorite: () => _favoriteService.removeFavorite(
+                  userId: _authService.currentUser?.uid,
+                  productId: product["id"],
+                ),
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailPage(
+                        product: product,
+                        isFavorite: true,
+                        onFavorite: () => _favoriteService.removeFavorite(
+                          userId: _authService.currentUser?.uid,
+                          productId: product["id"],
+                        ),
+                        role: role,
+                      ),
+                    ),
+                  );
                 },
-
-                role: role,
               );
             },
           );

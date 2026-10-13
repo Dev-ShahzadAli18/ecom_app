@@ -1,15 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/forget_password.dart';
 import 'package:ecom_app/screens/navigation.dart';
 import 'package:ecom_app/screens/signin_scren.dart';
+import 'package:ecom_app/services/auth_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
-import 'package:ecom_app/widgets/custom_drwaer.dart';
-import 'package:ecom_app/widgets/custom_password.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
 import 'package:ecom_app/widgets/custom_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_logic/firebase_logic.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,13 +16,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  final AuthService authService = AuthService();
-
   bool isLoading = false;
 
   @override
@@ -36,82 +29,42 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> login() async {
-    if (!formKey.currentState!.validate()) {
+  Future<void> _handleLogin() async {
+    if (isLoading || !formKey.currentState!.validate()) {
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
-
-    AuthResult result = await authService.login(
-      emailController.text.trim(),
-      passwordController.text.trim(),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    if (result.success) {
-      UserData.name = result.name;
-      UserData.email = result.email;
-
-      String finalRole = result.role.trim().toLowerCase();
-
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        try {
-          final doc = await FirebaseFirestore.instance
-              .collection("users")
-              .doc(currentUser.uid)
-              .get();
-
-          if (doc.exists && doc.data() != null) {
-            final data = doc.data()!;
-            if (data["role"] != null && data["role"].toString().isNotEmpty) {
-              finalRole = data["role"].toString().toLowerCase();
-            }
-            if (data["name"] != null && data["name"].toString().isNotEmpty) {
-              UserData.name = data["name"];
-            }
-            if (data["email"] != null && data["email"].toString().isNotEmpty) {
-              UserData.email = data["email"];
-            }
-          }
-        } catch (e) {
-          debugPrint("Error fetching Firestore user profile on login: $e");
-        }
+    setState(() => isLoading = true);
+    try {
+      final role = await _authService.login(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      if (!mounted) {
+        return;
       }
-
-      finalRole = finalRole == "admin" ? "admin" : "user";
-
-      UserData.role = finalRole;
-
-      setState(() {
-        isLoading = false;
-      });
-
-      if (!mounted) return;
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (context) {
-            return MainNavigation(role: finalRole);
-          },
-        ),
+        MaterialPageRoute(builder: (_) => MainNavigation(role: role)),
         (route) => false,
       );
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result.message)));
+    } on AuthServiceException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Login failed: $error")));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -228,9 +181,13 @@ class _LoginPageState extends State<LoginPage> {
 
                 SizedBox(height: 8),
 
-                CustomPasswordField(
+                CustomTextField(
                   controller: passwordController,
                   hintText: "Enter your password",
+                  prefixIcon: Icons.lock_outline,
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                  showPasswordToggle: true,
                   textInputAction: TextInputAction.done,
                   validator: (value) {
                     return Validators.password(value);
@@ -268,13 +225,8 @@ class _LoginPageState extends State<LoginPage> {
                 CustomButton(
                   text: isLoading ? "Please wait..." : "Login",
                   icon: Icons.arrow_forward,
-                  onTap: () {
-                    if (isLoading) {
-                      return;
-                    }
-
-                    login();
-                  },
+                  onTap: _handleLogin,
+                  enabled: !isLoading,
                 ),
 
                 SizedBox(height: 25),
@@ -299,30 +251,36 @@ class _LoginPageState extends State<LoginPage> {
 
                 SizedBox(height: 25),
 
-                SizedBox(
-                  width: double.infinity,
+                CustomButton(
+                  text: "Continue with Google",
+                  onTap: () {},
                   height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.g_mobiledata,
-                      size: 30,
-                      color: AppColors.black,
-                    ),
-                    label: Text(
-                      "Continue with Google",
-                      style: TextStyle(
+                  borderRadius: 14,
+                  backgroundColor: Colors.transparent,
+                  textColor: AppColors.black,
+                  side: BorderSide(color: lineColor),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.g_mobiledata,
+                        size: 30,
                         color: AppColors.black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: lineColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          "Continue with Google",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
 

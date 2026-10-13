@@ -1,14 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_app/screens/login_screen.dart';
 import 'package:ecom_app/screens/navigation.dart';
+import 'package:ecom_app/services/auth_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_drwaer.dart';
-import 'package:ecom_app/widgets/custom_password.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
 import 'package:ecom_app/widgets/custom_validator.dart';
 import 'package:ecom_app/widgets/gender_textfield.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatefulWidget {
@@ -19,6 +17,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final AuthService _authService = AuthService();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -51,25 +50,15 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
-      final User? user = credential.user;
-
-      if (user == null) {
-        throw Exception("Firebase user is null");
-      }
-      await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
-        "id": user.uid,
-        "name": nameController.text.trim(),
-        "email": emailController.text.trim(),
-        "gender": selectedGender,
-        "Phone Number": phoneController.text.trim(),
-        "role": "user",
-        "createdAt": FieldValue.serverTimestamp(),
-      });
+      await _authService.signUp(
+        name: nameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        confirmPassword: confirmPasswordController.text,
+        role: "user",
+        gender: selectedGender,
+        phoneNumber: phoneController.text,
+      );
 
       UserData.name = nameController.text.trim();
       UserData.email = emailController.text.trim();
@@ -92,6 +81,18 @@ class _SignupPageState extends State<SignupPage> {
         ),
         (route) => false,
       );
+    } on AuthServiceException catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
       if (!mounted) {
         return;
@@ -101,12 +102,9 @@ class _SignupPageState extends State<SignupPage> {
         isLoading = false;
       });
 
-      final message = e is FirebaseAuthException
-          ? e.message ?? e.code
-          : e.toString();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Signup Error: $message")));
+      ).showSnackBar(SnackBar(content: Text("Signup Error: $e")));
     }
   }
 
@@ -292,9 +290,13 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 8),
 
-                CustomPasswordField(
+                CustomTextField(
                   controller: passwordController,
                   hintText: "Create a password",
+                  prefixIcon: Icons.lock_outline,
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                  showPasswordToggle: true,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     return Validators.password(value);
@@ -314,9 +316,13 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 8),
 
-                CustomPasswordField(
+                CustomTextField(
                   controller: confirmPasswordController,
                   hintText: "Re-enter your password",
+                  prefixIcon: Icons.lock_outline,
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                  showPasswordToggle: true,
                   textInputAction: TextInputAction.done,
                   validator: (value) {
                     return Validators.confirmPassword(
@@ -362,30 +368,36 @@ class _SignupPageState extends State<SignupPage> {
 
                 SizedBox(height: 22),
 
-                SizedBox(
-                  width: double.infinity,
+                CustomButton(
+                  text: "Continue with Google",
+                  onTap: () {},
                   height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.g_mobiledata,
-                      size: 30,
-                      color: AppColors.black,
-                    ),
-                    label: Text(
-                      "Continue with Google",
-                      style: TextStyle(
+                  borderRadius: 14,
+                  backgroundColor: Colors.transparent,
+                  textColor: AppColors.black,
+                  side: BorderSide(color: lineColor),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.g_mobiledata,
+                        size: 30,
                         color: AppColors.black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: lineColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          "Continue with Google",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
 

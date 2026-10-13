@@ -1,17 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_app/services/category_service.dart';
+import 'package:ecom_app/services/product_service.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
 import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_container.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
 import 'package:ecom_app/widgets/listtile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ecom_app/theme/app_colors.dart';
 
 class AddProductPage extends StatefulWidget {
   final Map<String, dynamic>? product;
-
   AddProductPage({super.key, this.product});
 
   @override
@@ -19,6 +18,7 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
+  final ProductService _productService = ProductService();
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController imageUrlController = TextEditingController();
@@ -27,12 +27,8 @@ class _AddProductPageState extends State<AddProductPage> {
   String selectedCategory = "Women";
   String selectedCollection = "Featured";
   bool isSaving = false;
-  final List<String> categories = ["Women", "Men", "Accessories", "Beauty"];
-  final List<String> collections = [
-    "Featured",
-    "Recommended",
-    "Top Collection",
-  ];
+  final List<String> categories = CategoryService.categories;
+  final List<String> collections = CategoryService.collections;
   bool get isEditMode {
     return widget.product != null;
   }
@@ -40,135 +36,14 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   void initState() {
     super.initState();
-    if (isEditMode) {
-      loadOldProductData();
-    }
-  }
-
-  void loadOldProductData() {
-    Map<String, dynamic> product = widget.product!;
-    productNameController.text = product["name"] ?? "";
-    priceController.text = product["price"]?.toString() ?? "";
-    imageUrlController.text = product["imageUrl"] ?? "";
-    descriptionController.text = product["description"] ?? "";
-    selectedCategory = product["category"] ?? "Women";
-    selectedCollection = product["collection"] ?? "Featured";
-    orderAvailable = product["orderAvailable"] ?? true;
-  }
-
-  Future saveProduct() async {
-    String productName = productNameController.text.trim();
-    String priceText = priceController.text.trim();
-    String imageUrl = imageUrlController.text.trim();
-    String description = descriptionController.text.trim();
-    if (productName.isEmpty ||
-        priceText.isEmpty ||
-        imageUrl.isEmpty ||
-        description.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Please fill all fields")));
-      return;
-    }
-    double? price = double.tryParse(priceText);
-    if (price == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Please enter a valid price")));
-      return;
-    }
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Please login first")));
-      return;
-    }
-    setState(() {
-      isSaving = true;
-    });
-    try {
-      if (isEditMode) {
-        await updateProduct(price: price, productId: widget.product!["id"]);
-      } else {
-        await FirebaseFirestore.instance.collection("products").add({
-          "name": productName,
-          "price": price,
-          "imageUrl": imageUrl,
-          "description": description,
-          "category": selectedCategory,
-          "collection": selectedCollection,
-          "orderAvailable": orderAvailable,
-          "userId": user.uid,
-          "createdAt": FieldValue.serverTimestamp(),
-        });
-
-        if (!mounted) {
-          return;
-        }
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Product added successfully")));
-
-        clearFields();
-      }
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Something went wrong: $e")));
-    } finally {
-      if (mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
-    }
-  }
-
-  Future updateProduct({
-    required double price,
-    required String productId,
-  }) async {
-    await FirebaseFirestore.instance
-        .collection("products")
-        .doc(productId)
-        .update({
-          "name": productNameController.text.trim(),
-          "price": price,
-          "imageUrl": imageUrlController.text.trim(),
-          "description": descriptionController.text.trim(),
-          "category": selectedCategory,
-          "collection": selectedCollection,
-          "orderAvailable": orderAvailable,
-        });
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Product updated successfully")));
-
-    Navigator.pop(context, true);
-  }
-
-  void clearFields() {
-    productNameController.clear();
-    priceController.clear();
-    imageUrlController.clear();
-    descriptionController.clear();
-
-    setState(() {
-      selectedCategory = "Women";
-      selectedCollection = "Featured";
-      orderAvailable = true;
-    });
+    final data = _productService.extractFormData(widget.product);
+    productNameController.text = data.name;
+    priceController.text = data.price;
+    imageUrlController.text = data.imageUrl;
+    descriptionController.text = data.description;
+    selectedCategory = data.category;
+    selectedCollection = data.collection;
+    orderAvailable = data.orderAvailable;
   }
 
   @override
@@ -177,7 +52,6 @@ class _AddProductPageState extends State<AddProductPage> {
     priceController.dispose();
     imageUrlController.dispose();
     descriptionController.dispose();
-
     super.dispose();
   }
 
@@ -409,11 +283,68 @@ class _AddProductPageState extends State<AddProductPage> {
 
             CustomButton(
               text: isEditMode ? "Update Product" : "Add Product",
-              onTap: saveProduct,
               loading: isSaving,
               height: 55,
               borderRadius: 12,
               textColor: Colors.white,
+              onTap: isSaving
+                  ? null
+                  : () async {
+                      setState(() => isSaving = true);
+                      try {
+                        final wasUpdated = await _productService.saveProduct(
+                          isEdit: isEditMode,
+                          productId: widget.product?["id"]?.toString(),
+                          name: productNameController.text,
+                          price: priceController.text,
+                          imageUrl: imageUrlController.text,
+                          description: descriptionController.text,
+                          category: selectedCategory,
+                          collection: selectedCollection,
+                          orderAvailable: orderAvailable,
+                        );
+
+                        if (!context.mounted) return;
+
+                        if (wasUpdated) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Product updated successfully"),
+                            ),
+                          );
+                          Navigator.pop(context, true);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Product added successfully"),
+                            ),
+                          );
+                          productNameController.clear();
+                          priceController.clear();
+                          imageUrlController.clear();
+                          descriptionController.clear();
+                          setState(() {
+                            selectedCategory = "Women";
+                            selectedCollection = "Featured";
+                            orderAvailable = true;
+                          });
+                        }
+                      } on ProductServiceException catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error.message)),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Something went wrong: $e")),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => isSaving = false);
+                      }
+                    },
             ),
 
             SizedBox(height: 30),

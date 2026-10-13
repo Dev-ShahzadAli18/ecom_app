@@ -1,9 +1,9 @@
 import 'package:ecom_app/screens/verification_screen.dart';
+import 'package:ecom_app/services/auth_service.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
 import 'package:ecom_app/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ecom_app/widgets/custom_buttton.dart';
 
 class ForgotPassword extends StatefulWidget {
   ForgotPassword({super.key});
@@ -13,12 +13,56 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
+  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void dispose() {
     emailController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handlePasswordReset() async {
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter your email")),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      await _authService.sendPasswordResetEmail(email: email);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password reset link sent to $email")),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerificationCode(),
+        ),
+      );
+    } on AuthServiceException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to send reset email: $e")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
   @override
@@ -81,7 +125,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
                       Text(
                         "Enter your email associated with your account\n"
-                        "and we'll send you a verification code to\n"
+                        "and we'll send you a password reset link to\n"
                         "reset your password.",
                         style: TextStyle(
                           fontSize: 12,
@@ -105,15 +149,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         width: double.infinity,
                         height: 52,
                         child: CustomButton(
-                          text: "Continue",
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VerificationCode(),
-                              ),
-                            );
-                          },
+                          text: isLoading ? "Sending..." : "Continue",
+                          onTap: isLoading ? null : _handlePasswordReset,
                         ),
                       ),
 

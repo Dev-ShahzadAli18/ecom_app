@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ecom_app/theme/app_colors.dart';
 import 'package:ecom_app/theme/app_textstyle.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
+import 'package:ecom_app/widgets/custom_container.dart';
 
 class CustomProductDetailImage extends StatelessWidget {
   final String imageUrl;
@@ -38,8 +40,10 @@ class CustomProductImageError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomContainer(
       color: AppColors.lightGrey,
+      padding: EdgeInsets.zero,
+      boxShadow: [],
       child: Icon(
         Icons.image_not_supported_outlined,
         color: AppColors.grey,
@@ -111,12 +115,11 @@ class CustomProductInfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomCard(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.lightGrey,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      radius: 20,
+      backgroundColor: AppColors.lightGrey,
+      border: Border.all(color: Colors.transparent),
       child: Text(text, style: AppTextStyles.body.copyWith(fontSize: 12)),
     );
   }
@@ -150,14 +153,11 @@ class CustomOrderAvailability extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomCard(
       width: double.infinity,
       padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey.withValues(alpha: 0.1)),
-      ),
+      radius: 12,
+      border: Border.all(color: AppColors.grey.withValues(alpha: 0.1)),
       child: Row(
         children: [
           Icon(
@@ -176,117 +176,6 @@ class CustomOrderAvailability extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class CustomAdminButtons extends StatelessWidget {
-  final VoidCallback onUpdate;
-  final VoidCallback onDelete;
-  final bool isDeleting;
-
-  CustomAdminButtons({
-    super.key,
-    required this.onUpdate,
-    required this.onDelete,
-    required this.isDeleting,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: onUpdate,
-            icon: Icon(Icons.edit_outlined),
-            label: Text("Edit / Update"),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: BorderSide(color: AppColors.primary),
-              padding: EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: isDeleting ? null : onDelete,
-            icon: Icon(Icons.delete_outline),
-            label: Text(isDeleting ? "Deleting..." : "Delete"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class CustomUserButtons extends StatelessWidget {
-  final VoidCallback onAddToCart;
-  final VoidCallback onOrderNow;
-  final bool isAddingToCart;
-  final bool isOrdering;
-  final bool orderAvailable;
-
-  CustomUserButtons({
-    super.key,
-    required this.onAddToCart,
-    required this.onOrderNow,
-    required this.isAddingToCart,
-    required this.isOrdering,
-    required this.orderAvailable,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: isAddingToCart ? null : onAddToCart,
-            icon: Icon(Icons.shopping_cart_outlined),
-            label: Text(isAddingToCart ? "Adding to Cart..." : "Add to Cart"),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: BorderSide(color: AppColors.primary),
-              padding: EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: orderAvailable && !isOrdering ? onOrderNow : null,
-            icon: Icon(Icons.shopping_bag_outlined),
-            label: Text(isOrdering ? "Processing..." : "Order Now"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.black,
-              disabledBackgroundColor: AppColors.lightGrey,
-              padding: EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

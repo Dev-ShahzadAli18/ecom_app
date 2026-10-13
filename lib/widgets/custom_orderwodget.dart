@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ecom_app/theme/app_colors.dart';
+import 'package:ecom_app/widgets/custom_buttton.dart';
+import 'package:ecom_app/widgets/custom_card.dart';
+import 'package:ecom_app/widgets/custom_container.dart';
 
 class CustomOrderProduct extends StatelessWidget {
   final String name;
@@ -17,21 +20,18 @@ class CustomOrderProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomCard(
       padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-      ),
+      border: Border.all(color: Colors.transparent),
       child: Row(
         children: [
-          Container(
+          CustomContainer(
             height: 90,
             width: 80,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(14),
-            ),
+            padding: EdgeInsets.zero,
+            color: AppColors.background,
+            borderRadius: 14,
+            boxShadow: [],
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: imageUrl.isEmpty
@@ -131,49 +131,48 @@ class CustomColorSelector extends StatelessWidget {
       children: colors.map((colorName) {
         bool isSelected = selectedColor == colorName;
 
-        return GestureDetector(
-          onTap: () {
-            onColorSelected(colorName);
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.10)
-                  : AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected
-                    ? AppColors.primary
-                    : AppColors.grey.withValues(alpha: 0.20),
-                width: isSelected ? 2 : 1,
+        return CustomButton(
+          text: colorName,
+          onTap: () => onColorSelected(colorName),
+          fitContent: true,
+          height: 40,
+          borderRadius: 12,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          backgroundColor: isSelected
+              ? AppColors.primary.withValues(alpha: 0.10)
+              : AppColors.white,
+          textColor: AppColors.black,
+          side: BorderSide(
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.grey.withValues(alpha: 0.20),
+            width: isSelected ? 2 : 1,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomContainer(
+                height: 22,
+                width: 22,
+                padding: EdgeInsets.zero,
+                color: getColor(colorName),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.grey.withValues(alpha: 0.30),
+                ),
+                boxShadow: [],
+                child: SizedBox.shrink(),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 22,
-                  width: 22,
-                  decoration: BoxDecoration(
-                    color: getColor(colorName),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.grey.withValues(alpha: 0.30),
-                    ),
-                  ),
+              SizedBox(width: 7),
+              Text(
+                colorName,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.black,
                 ),
-                SizedBox(width: 7),
-                Text(
-                  colorName,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.black,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }).toList(),
@@ -197,17 +196,15 @@ class CustomQuantitySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        GestureDetector(
+        CustomButton(
+          text: "",
           onTap: onDecrease,
-          child: Container(
-            height: 38,
-            width: 38,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(Icons.remove, size: 19, color: AppColors.black),
-          ),
+          width: 38,
+          height: 38,
+          borderRadius: 10,
+          padding: EdgeInsets.zero,
+          backgroundColor: AppColors.background,
+          child: Icon(Icons.remove, size: 19, color: AppColors.black),
         ),
         SizedBox(width: 18),
         Text(
@@ -219,68 +216,18 @@ class CustomQuantitySelector extends StatelessWidget {
           ),
         ),
         SizedBox(width: 18),
-        GestureDetector(
+        CustomButton(
+          text: "",
           onTap: onIncrease,
-          child: Container(
-            height: 38,
-            width: 38,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(Icons.add, size: 19, color: Colors.white),
-          ),
+          width: 38,
+          height: 38,
+          borderRadius: 10,
+          padding: EdgeInsets.zero,
+          backgroundColor: AppColors.primary,
+          textColor: Colors.white,
+          child: Icon(Icons.add, size: 19, color: Colors.white),
         ),
       ],
-    );
-  }
-}
-
-class CustomOrderTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final String labelText;
-  final int maxLines;
-  final TextInputType keyboardType;
-
-  CustomOrderTextField({
-    super.key,
-    required this.controller,
-    required this.hintText,
-    required this.labelText,
-    this.maxLines = 1,
-    this.keyboardType = TextInputType.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      cursorColor: AppColors.primary,
-      style: TextStyle(color: AppColors.black, fontSize: 15),
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        labelStyle: TextStyle(color: AppColors.grey),
-        floatingLabelStyle: TextStyle(color: AppColors.primary),
-        hintStyle: TextStyle(color: AppColors.grey),
-        filled: true,
-        fillColor: AppColors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.grey.withValues(alpha: 0.15)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
     );
   }
 }
@@ -292,12 +239,9 @@ class CustomOrderTotal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomCard(
       padding: EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-      ),
+      border: Border.all(color: Colors.transparent),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

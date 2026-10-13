@@ -7,6 +7,7 @@ class CustomButton extends StatelessWidget {
 
   final double? height;
   final double? width;
+  final bool fitContent;
   final double borderRadius;
 
   final bool loading;
@@ -17,8 +18,10 @@ class CustomButton extends StatelessWidget {
 
   final Color? backgroundColor;
   final Color? textColor;
+  final Color? disabledTextColor;
   final Color? disabledBackgroundColor;
   final BorderSide? side;
+  final EdgeInsetsGeometry? padding;
 
   final double fontSize;
 
@@ -28,6 +31,7 @@ class CustomButton extends StatelessWidget {
     this.onTap,
     this.height,
     this.width,
+    this.fitContent = false,
     this.borderRadius = 15,
     this.loading = false,
     this.enabled = true,
@@ -35,8 +39,10 @@ class CustomButton extends StatelessWidget {
     this.child,
     this.backgroundColor,
     this.textColor,
+    this.disabledTextColor,
     this.disabledBackgroundColor,
     this.side,
+    this.padding,
     this.fontSize = 16,
   });
 
@@ -55,60 +61,68 @@ class CustomButton extends StatelessWidget {
             ? width!.clamp(0.0, constraints.maxWidth).toDouble()
             : width ?? double.infinity;
 
+        final button = ElevatedButton(
+          onPressed: enabled && !loading ? onTap : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: backgroundColor ?? AppColors.primary,
+            foregroundColor: foregroundColor,
+            disabledBackgroundColor:
+                disabledBackgroundColor ?? AppColors.lightGrey,
+            disabledForegroundColor: disabledTextColor ?? AppColors.grey,
+            elevation: 0,
+            padding: padding ?? EdgeInsets.symmetric(horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              side: side ?? BorderSide.none,
+            ),
+          ),
+          child: loading
+              ? SizedBox(
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: foregroundColor,
+                  ),
+                )
+              : child ??
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, color: foregroundColor),
+                          SizedBox(width: 8),
+                        ],
+                        Flexible(
+                          child: Text(
+                            text,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: foregroundColor,
+                              fontSize: viewportWidth < 360
+                                  ? fontSize * 0.92
+                                  : fontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+        );
+
+        if (fitContent) {
+          return IntrinsicWidth(
+            child: SizedBox(height: buttonHeight, child: button),
+          );
+        }
+
         return SizedBox(
           width: buttonWidth,
           height: buttonHeight,
-          child: ElevatedButton(
-            onPressed: enabled && !loading ? onTap : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: backgroundColor ?? AppColors.primary,
-              foregroundColor: foregroundColor,
-              disabledBackgroundColor:
-                  disabledBackgroundColor ?? AppColors.lightGrey,
-              disabledForegroundColor: AppColors.grey,
-              elevation: 0,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius),
-                side: side ?? BorderSide.none,
-              ),
-            ),
-            child: loading
-                ? SizedBox(
-                    height: 22,
-                    width: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: foregroundColor,
-                    ),
-                  )
-                : child ??
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          if (icon != null) ...[
-                            Icon(icon, color: foregroundColor),
-                            SizedBox(width: 8),
-                          ],
-                          Flexible(
-                            child: Text(
-                              text,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: foregroundColor,
-                                fontSize: viewportWidth < 360
-                                    ? fontSize * 0.92
-                                    : fontSize,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-          ),
+          child: button,
         );
       },
     );

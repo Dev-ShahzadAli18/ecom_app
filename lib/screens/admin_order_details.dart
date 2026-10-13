@@ -1,4 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_app/services/admin_service.dart';
+import 'package:ecom_app/services/order_service.dart';
+import 'package:ecom_app/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ecom_app/theme/app_colors.dart';
@@ -23,71 +25,27 @@ class AdminOrderDetailsPage extends StatefulWidget {
 }
 
 class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
+  final UserService _userService = UserService();
+  final OrderService _orderService = OrderService();
+  final AdminService _adminService = AdminService();
   Future<Map<String, dynamic>>? customerFuture;
+  late String currentStatus;
+  bool isUpdatingStatus = false;
 
   @override
   void initState() {
     super.initState();
-    customerFuture = _loadCustomer();
-  }
-
-  Future<Map<String, dynamic>> _loadCustomer() async {
-    if (widget.buyerId.isEmpty) {
-      return {};
-    }
-
-    final snapshot = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(widget.buyerId)
-        .get();
-
-    return snapshot.data() ?? {};
-  }
-
-  double _number(dynamic value) {
-    return value is num ? value.toDouble() : 0;
-  }
-
-  int _quantity(dynamic value) {
-    return value is num ? value.toInt() : 1;
-  }
-
-  String _display(dynamic orderValue, dynamic profileValue) {
-    final orderText = orderValue?.toString().trim() ?? "";
-
-    if (orderText.isNotEmpty) {
-      return orderText;
-    }
-
-    final profileText = profileValue?.toString().trim() ?? "";
-
-    return profileText.isEmpty ? "Not provided" : profileText;
-  }
-
-  String _formatDate(dynamic value) {
-    if (value is! Timestamp) {
-      return "Date pending";
-    }
-
-    final date = value.toDate();
-
-    return "${date.day.toString().padLeft(2, "0")}/"
-        "${date.month.toString().padLeft(2, "0")}/"
-        "${date.year}  "
-        "${date.hour.toString().padLeft(2, "0")}:"
-        "${date.minute.toString().padLeft(2, "0")}";
+    customerFuture = _userService.getCustomerProfile(widget.buyerId);
+    currentStatus = (widget.order["status"] ?? "Pending").toString();
   }
 
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
 
-    final quantity = _quantity(order["quantity"]);
-    final price = _number(order["price"]);
-
-    final total = order["totalPrice"] is num
-        ? _number(order["totalPrice"])
-        : price * quantity;
+    final quantity = _orderService.getQuantity(order);
+    final price = _orderService.getPrice(order);
+    final total = _orderService.getTotalPrice(order);
 
     final padding = (MediaQuery.sizeOf(context).width * 0.05).clamp(14.0, 24.0);
 
@@ -102,6 +60,68 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
         ),
         title: Text("Order Details", style: AppTextStyles.title),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: "Update Status",
+            icon: isUpdatingStatus
+                ? SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : Icon(Icons.more_vert, color: AppColors.black),
+            onSelected: isUpdatingStatus
+                ? null
+                : (newStatus) async {
+                    if (newStatus == currentStatus) return;
+                    setState(() => isUpdatingStatus = true);
+                    try {
+                      await _adminService.updateOrderStatus(
+                        buyerId: widget.buyerId,
+                        orderId: widget.orderId,
+                        newStatus: newStatus,
+                      );
+                      if (!context.mounted) return;
+                      setState(() {
+                        currentStatus = newStatus;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Order status changed to $newStatus"),
+                        ),
+                      );
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to update status: $e"),
+                          ),
+                        );
+                      }
+                    } finally {
+                      if (mounted) setState(() => isUpdatingStatus = false);
+                    }
+                  },
+            itemBuilder: (context) => [
+              PopupMenuItem(value: "Pending", child: Text("Set as Pending")),
+              PopupMenuItem(
+                value: "Processing",
+                child: Text("Set as Processing"),
+              ),
+              PopupMenuItem(
+                value: "Delivered",
+                child: Text("Set as Delivered"),
+              ),
+              PopupMenuItem(
+                value: "Cancelled",
+                child: Text("Set as Cancelled"),
+              ),
+            ],
+          ),
+        ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: customerFuture,
@@ -114,19 +134,25 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
 
           final customer = snapshot.data ?? {};
 
-          final customerName = _display(
+          final customerName = _userService.resolveOrderProfileValue(
             order["customerName"],
             customer["name"],
           );
 
-          final phone = _display(
+          final phone = _userService.resolveOrderProfileValue(
             order["phone"],
             customer["Phone Number"] ?? customer["phone"],
           );
 
-          final address = _display(order["address"], customer["address"]);
+          final address = _userService.resolveOrderProfileValue(
+            order["address"],
+            customer["address"],
+          );
 
-          final email = _display(order["email"], customer["email"]);
+          final email = _userService.resolveOrderProfileValue(
+            order["email"],
+            customer["email"],
+          );
 
           final productName = (order["name"] ?? "Order item").toString();
 
@@ -178,8 +204,8 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "${order["status"] ?? "Pending"} · "
-                            "${_formatDate(order["createdAt"])}",
+                            "$currentStatus · "
+                            "${_adminService.formatDate(order["createdAt"])}",
                             style: AppTextStyles.body.copyWith(fontSize: 12),
                           ),
                         ],
@@ -247,7 +273,10 @@ class _AdminOrderDetailsPageState extends State<AdminOrderDetailsPage> {
 
                     CustomDetailRow(
                       label: "Color",
-                      value: _display(order["color"], null),
+                      value: _userService.resolveOrderProfileValue(
+                        order["color"],
+                        null,
+                      ),
                     ),
 
                     CustomDetailRow(
