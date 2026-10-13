@@ -1,3 +1,4 @@
+import 'package:ecom_app/screens/search.dart';
 import 'package:ecom_app/services/auth_service.dart';
 import 'package:ecom_app/services/category_service.dart';
 import 'package:ecom_app/services/favorite_service.dart';
@@ -8,12 +9,10 @@ import 'package:ecom_app/widgets/custom_drwaer.dart';
 import 'package:ecom_app/widgets/custom_productsection.dart';
 import 'package:ecom_app/widgets/custom_sectiontitle.dart';
 import 'package:flutter/material.dart';
-
 import 'package:ecom_app/theme/app_colors.dart';
 
 class HomePage extends StatefulWidget {
   final String role;
-
   HomePage({super.key, required this.role});
 
   @override
@@ -26,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
   final CategoryService _categoryService = CategoryService();
   int selectedCategory = 0;
-
   final List<String> categories = CategoryService.categoriesWithAll;
   final List<IconData> categoryIcons = CategoryService.defaultCategoryIcons;
 
@@ -34,13 +32,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-
       drawer: CustomDrawer(role: widget.role),
-
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -51,59 +46,52 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
-
-        title: Text("GemStore", style: AppTextStyles.title),
-
+        title: Text("JONSTORE", style: AppTextStyles.title),
         centerTitle: true,
-
         actions: [
           IconButton(
             onPressed: () {
-              // Search baad mein add karenge
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchPage(role: widget.role),
+                ),
+              );
             },
             icon: Icon(Icons.search, color: AppColors.black),
           ),
         ],
       ),
-
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _productService.watchProducts(),
-
         builder: (context, productSnapshot) {
           if (productSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
-
           if (productSnapshot.hasError) {
             return Center(
               child: Text("Something went wrong", style: AppTextStyles.body),
             );
           }
-
           if (!productSnapshot.hasData || productSnapshot.data!.isEmpty) {
             return Center(
               child: Text("No products available", style: AppTextStyles.body),
             );
           }
-
           final products = _categoryService.filterByCategory(
             productSnapshot.data!,
             categories[selectedCategory],
           );
-
           return StreamBuilder<Set<String>>(
             stream: _favoriteService.watchFavoriteIds(
               _authService.currentUser?.uid,
             ),
-
             builder: (context, favoriteSnapshot) {
               final favoriteIds = favoriteSnapshot.data ?? <String>{};
-
               final double horizontalPadding =
                   (MediaQuery.of(context).size.width * 0.045).clamp(14.0, 24.0);
-
               return SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.only(
@@ -111,28 +99,20 @@ class _HomePageState extends State<HomePage> {
                   right: horizontalPadding,
                   bottom: 30,
                 ),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     SizedBox(height: 10),
-
                     Text("Categories", style: AppTextStyles.title),
-
                     SizedBox(height: 16),
-
                     SizedBox(
                       height: 95,
-
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: categories.length,
-
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: EdgeInsets.only(right: 12),
-
                             child: CustomButton(
                               text: categories[index],
                               width: 80,
@@ -196,85 +176,64 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-
                     SizedBox(height: 25),
-
                     CustomSectionTitle(
                       title: "Featured",
                       collectionName: "Featured",
                       category: categories[selectedCategory],
                       role: widget.role,
                     ),
-
                     SizedBox(height: 15),
-
                     CustomProductSection(
                       products: _productService.filterProducts(
                         products,
                         collectionName: "Featured",
                       ),
-
                       favoriteIds: favoriteIds,
-
                       onFavorite: (product) => _favoriteService.toggleFavorite(
                         userId: _authService.currentUser?.uid,
                         product: product,
                       ),
-
                       role: widget.role,
                     ),
-
                     SizedBox(height: 30),
-
                     CustomSectionTitle(
                       title: "Recommended",
                       collectionName: "Recommended",
                       category: categories[selectedCategory],
                       role: widget.role,
                     ),
-
                     SizedBox(height: 15),
-
                     CustomProductSection(
                       products: _productService.filterProducts(
                         products,
                         collectionName: "Recommended",
                       ),
-
                       favoriteIds: favoriteIds,
-
                       onFavorite: (product) => _favoriteService.toggleFavorite(
                         userId: _authService.currentUser?.uid,
                         product: product,
                       ),
-
                       role: widget.role,
                     ),
-
                     SizedBox(height: 30),
-
                     CustomSectionTitle(
                       title: "Top Collection",
                       collectionName: "Top Collection",
                       category: categories[selectedCategory],
                       role: widget.role,
                     ),
-
                     SizedBox(height: 15),
-
                     CustomProductSection(
                       products: _productService.filterProducts(
                         products,
                         collectionName: "Top Collection",
                       ),
-
                       favoriteIds: favoriteIds,
-
                       onFavorite: (product) => _favoriteService.toggleFavorite(
                         userId: _authService.currentUser?.uid,
                         product: product,
                       ),
-
                       role: widget.role,
                     ),
                   ],
